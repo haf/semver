@@ -100,4 +100,41 @@ class SemVer
   end
 
   include Comparable
+
+  # Parses a semver from a string and format.
+  def self.parse(version_string, format = nil, allow_missing = true)
+    format ||= TAG_FORMAT
+    regex_str = Regexp.escape format
+
+    # Convert all the format characters to named capture groups
+    regex_str = regex_str.gsub('%M', '(?<major>\d+)').
+      gsub('%m', '(?<minor>\d+)').
+      gsub('%p', '(?<patch>\d+)').
+      gsub('%s', '(?:-(?<special>[A-Za-z][0-9A-Za-z\.]+))?')
+
+    regex = Regexp.new(regex_str)
+    match = regex.match version_string
+
+    if match
+        major = minor = patch = nil
+        special = ''
+
+        # Extract out the version parts
+        major = match[:major].to_i if match.names.include? 'major'
+        minor = match[:minor].to_i if match.names.include? 'minor'
+        patch = match[:patch].to_i if match.names.include? 'patch'
+        special = match[:special] || '' if match.names.include? 'special'
+
+        # Failed parse if major, minor, or patch wasn't found
+        # and allow_missing is false
+        return nil if !allow_missing and [major, minor, patch].any? {|x| x.nil? }
+
+        # Otherwise, allow them to default to zero
+        major ||= 0
+        minor ||= 0
+        patch ||= 0
+
+        SemVer.new major, minor, patch, special
+    end
+  end
 end

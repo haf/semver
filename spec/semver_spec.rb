@@ -61,5 +61,79 @@ describe SemVer do
     v.special = 'alpha.46'
     v.format "%M.%m.%p%s"       # => "1.1.0-alpha.46"
     v.to_s                      # => "v1.1.0"
-   end
+  end
+
+
+  it "should parse formats correctly" do
+    semver_strs = [
+      'v1.2.3',
+      'v1.2.3',
+      '0.10.100-b32',
+      'version:3-0-45',
+      '3$2^1',
+      '3$2^1-bla567',
+    ]
+
+    formats = [
+      nil,
+      SemVer::TAG_FORMAT,
+      '%M.%m.%p%s',
+      'version:%M-%m-%p',
+      '%M$%m^%p',
+      '%M$%m^%p%s',
+    ]
+
+    semvers= [
+      SemVer.new(1, 2, 3),
+      SemVer.new(1, 2, 3),
+      SemVer.new(0, 10, 100, 'b32'),
+      SemVer.new(3, 0, 45),
+      SemVer.new(3, 2, 1),
+      SemVer.new(3, 2, 1, 'bla567'),
+    ]
+
+    semver_strs.zip(formats, semvers).each do |args|
+      str, format, semver = args
+      SemVer.parse(str, format).should eq(semver)
+    end
+  end
+
+  it "should only allow missing version parts when allow_missing is set" do
+    semver_strs = [
+      'v1',
+      'v1',
+      'v1',
+
+      'v1.2',
+      'v1.2',
+    ]
+
+    formats = [
+      'v%M',
+      'v%m',
+      'v%p',
+
+      'v%M.%m',
+      'v%m.%p',
+    ]
+
+    semvers= [
+      SemVer.new(1, 0, 0),
+      SemVer.new(0, 1, 0),
+      SemVer.new(0, 0, 1),
+
+      SemVer.new(1, 2, 0),
+      SemVer.new(0, 1, 2),
+    ]
+
+    semver_strs.zip(formats, semvers).each do |args|
+      str, format, semver = args
+
+      SemVer.parse(str, format).should eq(semver)
+      SemVer.parse(str, format, true).should eq(semver)
+
+      SemVer.parse(str, format, false).should be_nil
+    end
+  end
+
 end
