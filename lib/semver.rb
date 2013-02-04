@@ -107,10 +107,10 @@ class SemVer
     regex_str = Regexp.escape format
 
     # Convert all the format characters to named capture groups
-    regex_str.gsub! '%M', '(?<major>\d+)'
-    regex_str.gsub! '%m', '(?<minor>\d+)'
-    regex_str.gsub! '%p', '(?<patch>\d+)'
-    regex_str.gsub! '%s', '(?:-(?<special>[A-Za-z][0-9A-Za-z\.]+))?'
+    regex_str = regex_str.gsub('%M', '(?<major>\d+)').
+      gsub('%m', '(?<minor>\d+)').
+      gsub('%p', '(?<patch>\d+)').
+      gsub('%s', '(?:-(?<special>[A-Za-z][0-9A-Za-z\.]+))?')
 
     regex = Regexp.new(regex_str)
     match = regex.match version_string
