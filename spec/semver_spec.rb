@@ -115,6 +115,8 @@ describe SemVer do
 
       'v1.2',
       'v1.2',
+
+      nil,
     ]
 
     formats = [
@@ -124,6 +126,8 @@ describe SemVer do
 
       'v%M.%m',
       'v%m.%p',
+
+      nil,
     ]
 
     semvers= [
@@ -133,6 +137,8 @@ describe SemVer do
 
       SemVer.new(1, 2, 0),
       SemVer.new(0, 1, 2),
+
+      nil,
     ]
 
     semver_strs.zip(formats, semvers).each do |args|
