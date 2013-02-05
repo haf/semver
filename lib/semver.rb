@@ -138,3 +138,8 @@ class SemVer
     end
   end
 end
+
+# sometimes a library that you are using has already put the class
+# 'SemVer' in global scope. Too Bad®. Use this symbol instead.
+class XSemVer < SemVer
+end
