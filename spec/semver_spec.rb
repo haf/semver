@@ -23,8 +23,17 @@ describe SemVer do
   end
 
   it "should find an ancestral .semver" do
-    SemVer.find.should be_a_kind_of(SemVer)
+    found = SemVer.find
+    found.should_not be_nil
   end
+
+  API = %W[special patch minor major load save format to_s <=>].collect(&:to_sym)
+  API.each { |x|
+    it "should quack like a SemVer class" do
+      sv = SemVer.new
+      sv.should respond_to(x)
+    end
+  }
   
   # Semantic Versioning 2.0.0-rc.1
   
