@@ -93,8 +93,9 @@ module XSemVer
 
       # Compare prerelease identifiers according to SemVer 2.0.0-rc2
       # TODO: extract prelease into its own class that implements Comparable
-      return  1 if  prerelease? && !other.prerelease?
-      return -1 if !prerelease? &&  other.prerelease?
+      return  1 if !prerelease? &&  other.prerelease?
+      return -1 if  prerelease? && !other.prerelease?
+      return  0 if !prerelease? && !other.prerelease?
       pre_ids = prerelease.split(".")
       other_pre_ids = other.prerelease.split(".")
       only_digits = /\A\d+\z/
@@ -167,7 +168,7 @@ module XSemVer
     
     # Return true if the SemVer has a non-empty #prerelease value. Otherwise, false.
     def prerelease?
-      special.nil? or special.length == 0
+      !special.nil? && special.length > 0
     end
     
   end
