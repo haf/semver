@@ -95,11 +95,12 @@ module XSemVer
       pat = patch.to_i <=> other.patch.to_i
       return pat unless pat == 0
 
+      # compare prerelease identifiers according to SemVer 2.0.0-rc2
       return 1 if prerelease? && !other.prerelease?
       return -1 if !prerelease? && other.prerelease?
       return 0 if !prerelease? && !prerelease?
       
-      # TODO: compare prerelease identifiers
+      
       
       0
     end
@@ -143,14 +144,14 @@ module XSemVer
       end
     end
     
-    # SemVer specification 2.0.0-rc2 indicates notes that anything after the '-' character is prerelease data.
-    # To be more consistent with the specification, #prerelease returns the same value as #special.
+    # SemVer specification 2.0.0-rc2 states that anything after the '-' character is prerelease data.
+    # To be consistent with the specification verbage, #prerelease returns the same value as #special.
     def prerelease
       special
     end
     
-    # SemVer specification 2.0.0-rc2 indicates notes that anything after the '-' character is prerelease data.
-    # To be more consistent with the specification, #prerelease= sets the same value as #special.
+    # SemVer specification 2.0.0-rc2 states that anything after the '-' character is prerelease data.
+    # To be consistent with the specification verbage, #prerelease= sets the same value as #special.
     def prerelease=(pre)
       self.special = pre
     end
