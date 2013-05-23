@@ -86,21 +86,30 @@ module XSemVer
     end
 
     def <=> other
-      maj = major.to_i <=> other.major.to_i
-      return maj unless maj == 0
+      [:major, :minor, :patch].each do |method|
+        comparison = (send(method) <=> other.send(method))
+        return comparison unless comparison == 0
+      end
 
-      min = minor.to_i <=> other.minor.to_i
-      return min unless min == 0
-
-      pat = patch.to_i <=> other.patch.to_i
-      return pat unless pat == 0
-
-      # compare prerelease identifiers according to SemVer 2.0.0-rc2
-      return 1 if prerelease? && !other.prerelease?
-      return -1 if !prerelease? && other.prerelease?
-      return 0 if !prerelease? && !prerelease?
-      
-      
+      # Compare prerelease identifiers according to SemVer 2.0.0-rc2
+      # TODO: extract prelease into its own class that implements Comparable
+      return  1 if  prerelease? && !other.prerelease?
+      return -1 if !prerelease? &&  other.prerelease?
+      pre_ids = prerelease.split(".")
+      other_pre_ids = other.prerelease.split(".")
+      only_digits = /\A\d+\z/
+      [pre_ids.size, other_pre_ids.size].max.times do |n|
+        pid = pre_ids[n]
+        opid = other_pre_ids[n]
+        return 1 if opid.nil?
+        return -1 if pid.nil?
+        if pid =~ only_digits && opid =~ only_digits
+          pid = pid.to_i
+          opid = opid.to_i
+        end
+        comparison = (pid <=> opid)
+        return comparison unless comparison == 0
+      end
       
       0
     end

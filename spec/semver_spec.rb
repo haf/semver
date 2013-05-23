@@ -179,6 +179,10 @@ describe SemVer do
     (semvers.size - 1).times do |n|
       semvers[n].should < semvers[n+1]
     end
+    semvers.reverse!
+    (semvers.size - 1).times do |n|
+      semvers[n].should > semvers[n+1]
+    end
   end
   
   it "should compare a SemVer with prerelease against a SemVer without prerelease" do
