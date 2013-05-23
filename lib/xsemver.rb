@@ -97,8 +97,11 @@ module XSemVer
 
       return 1 if prerelease? && !other.prerelease?
       return -1 if !prerelease? && other.prerelease?
+      return 0 if !prerelease? && !prerelease?
       
-      special <=> other.special
+      # TODO: compare prerelease identifiers
+      
+      0
     end
 
     include Comparable
