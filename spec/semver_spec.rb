@@ -151,6 +151,11 @@ describe SemVer do
     end
   end
   
+  
+  
+  
+  # Semantic Versioning 2.0.0-rc2
+  
   it "aliases #prerelease to #special" do
     v1 = SemVer.new
     v1.special = 'foo'
@@ -158,6 +163,24 @@ describe SemVer do
     v2 = SemVer.new
     v2.prerelease = 'bar'
     v2.special.should == 'bar'
+  end
+  
+  it "should compare again another SemVer by prerelease" do
+    pres = %w( alpha alpha.1 beta.2 beta.3 beta.11 rc.1 )
+    semvers = pres.map do |pre|
+      SemVer.new 1, 0, 0, pre
+    end
+    (semvers.size - 1).times do |n|
+      semvers[n].should < semvers[n+1]
+    end
+  end
+  
+  it "should compare a SemVer with prerelease against a SemVer without prerelease" do
+    v1 = SemVer.new(1, 0, 0, 'foo')
+    v2 = SemVer.new(1, 0, 0)
+    v1.should < v2
+    v2.should > v1
+    v1.should == v1
   end
 
 end
