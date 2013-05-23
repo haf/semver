@@ -95,10 +95,10 @@ module XSemVer
       pat = patch.to_i <=> other.patch.to_i
       return pat unless pat == 0
 
-      spe = special <=> other.special
-      return spec unless spe == 0
-
-      0
+      return 1 if prerelease? && !other.prerelease?
+      return -1 if !prerelease? && other.prerelease?
+      
+      special <=> other.special
     end
 
     include Comparable
@@ -152,6 +152,10 @@ module XSemVer
       self.special = pre
     end
     
+    # Return true if the SemVer has a non-empty #prerelease value. Otherwise, false.
+    def prerelease?
+      special.nil? or special.length == 0
+    end
     
   end
 end
