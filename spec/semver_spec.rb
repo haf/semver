@@ -4,9 +4,15 @@ require 'tempfile'
 describe SemVer do
 
   it "should compare against another version versions" do
-    v1 = SemVer.new 0,1,0
-    v2 = SemVer.new 0,1,1
-    v1.should < v2
+    semvers = [
+      SemVer.new(0, 1, 0),
+      SemVer.new(0, 1, 1),
+      SemVer.new(0, 2, 0),
+      SemVer.new(1, 0, 0)
+    ]
+    (semvers.size - 1).times do |n|
+      semvers[n].should < semvers[n+1]
+    end
   end
 
   it "should serialize to and from a file" do
