@@ -139,5 +139,19 @@ module XSemVer
           SemVer.new major, minor, patch, special
       end
     end
+    
+    # SemVer specification 2.0.0-rc2 indicates notes that anything after the '-' character is prerelease data.
+    # To be more consistent with the specification, #prerelease returns the same value as #special.
+    def prerelease
+      special
+    end
+    
+    # SemVer specification 2.0.0-rc2 indicates notes that anything after the '-' character is prerelease data.
+    # To be more consistent with the specification, #prerelease= sets the same value as #special.
+    def prerelease=(pre)
+      self.special = pre
+    end
+    
+    
   end
 end

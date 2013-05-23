@@ -150,5 +150,14 @@ describe SemVer do
       SemVer.parse(str, format, false).should be_nil
     end
   end
+  
+  it "aliases #prerelease to #special" do
+    v1 = SemVer.new
+    v1.special = 'foo'
+    v1.prerelease.should == 'foo'
+    v2 = SemVer.new
+    v2.prerelease = 'bar'
+    v2.special.should == 'bar'
+  end
 
 end
