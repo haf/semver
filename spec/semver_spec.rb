@@ -171,7 +171,7 @@ describe SemVer do
     v2.special.should == 'bar'
   end
   
-  it "should compare again another SemVer by prerelease" do
+  it "compares again another SemVer by prerelease" do
     pres = %w( alpha alpha.1 beta.2 beta.3 beta.11 rc.1 )
     semvers = pres.map do |pre|
       SemVer.new 1, 0, 0, pre
@@ -185,12 +185,67 @@ describe SemVer do
     end
   end
   
-  it "should compare a SemVer with prerelease against a SemVer without prerelease" do
+  it "compares a SemVer with prerelease against a SemVer without prerelease" do
     v1 = SemVer.new(1, 0, 0, 'foo')
     v2 = SemVer.new(1, 0, 0)
     v1.should < v2
     v2.should > v1
     v1.should == v1
+  end
+  
+  describe "metadata" do
+  
+    it "is an empty string by default" do
+      SemVer.new.metadata.should == ''
+    end
+    
+    it "can be set when a SemVer is initialized" do
+      SemVer.new(1, 2, 3, 'foo', 'bar').metadata.should == 'bar'
+    end
+    
+    it "does not affect the comparison of two SemVers" do
+      v1 = SemVer.new
+      v1.metadata = 'foo.123'
+      v2 = SemVer.new
+      v2.metadata = 'bar.456.789'
+      v1.should == v2
+    end
+    
+    it "is parsed from a string" do
+      tests = {
+        'bar.234.567'     => ['v1.2.3-foo.123.456+bar.234.567'],
+        'SHA.q1w2e3r4t5'  => ['1.2.3+SHA.q1w2e3r4t5'],
+        'a'               => ['1.2.3+a-bar.456', '%M.%m.%p%d%s'],
+        'bar.456'         => ['1$2^3-foo.123abc|+bar.456', '%M$%m^%p%s|%d'],
+        'foo.123'         => ['ver:1.2.3,meta:+foo.123', 'ver:%M.%m.%p,meta:%d']
+      }
+      tests.each do |result, args|
+        SemVer.parse(*args).metadata.should == result
+      end
+    end
+    
+    it "is included in the return value from #to_s" do
+      SemVer.new(1, 2, 3, 'foo', 'bar').to_s.should == "v1.2.3-foo+bar"      
+    end
+    
+    it "replaces '%d' in the #format return value" do
+      SemVer.new(1, 2, 3, 'foo', 'bar').format('%d').should == '+bar'
+      SemVer.new.format('%d').should == ''
+    end
+    
+    it "must consist of only alphanumeric characters, hypens, and dots" do
+      invalid_metadatas = %w( $123 alpha+beta foo_ ~ sha:q1w2r4t5u7i8 exp[dsf] a\b\c 234(rc1) foo#bar .231 -abc )
+      valid_metadatas = %w( 123-abc. sha-12345 a 5 b- 4. 1....2---foo )
+      invalid_metadatas.each do |meta|
+        expect {
+          SemVer.new(1, 0, 0, 'foo', meta)
+        }.to raise_error("invalid metadata: #{meta}")
+      end
+      valid_metadatas.each do |meta|
+        SemVer.new(1, 0, 0, 'foo', meta)
+      end      
+    end
+  
   end
 
 end
