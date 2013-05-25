@@ -214,8 +214,7 @@ describe SemVer do
     it "is parsed from a string" do
       tests = {
         'bar.234.567'     => ['v1.2.3-foo.123.456+bar.234.567'],
-        'SHA.q1w2e3r4t5'  => ['1.2.3+SHA.q1w2e3r4t5'],
-        'a'               => ['1.2.3+a-bar.456', '%M.%m.%p%d%s'],
+        'SHA.q1w2e3r4t5'  => ['v1.2.3+SHA.q1w2e3r4t5'],
         'bar.456'         => ['1$2^3-foo.123abc|+bar.456', '%M$%m^%p%s|%d'],
         'foo.123'         => ['ver:1.2.3,meta:+foo.123', 'ver:%M.%m.%p,meta:%d']
       }
@@ -239,7 +238,7 @@ describe SemVer do
       invalid_metadatas.each do |meta|
         expect {
           SemVer.new(1, 0, 0, 'foo', meta)
-        }.to raise_error("invalid metadata: #{meta}")
+        }.to raise_error(RuntimeError, "invalid metadata: #{meta}")
       end
       valid_metadatas.each do |meta|
         SemVer.new(1, 0, 0, 'foo', meta)

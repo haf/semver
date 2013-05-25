@@ -6,7 +6,7 @@ module XSemVer
 # 'SemVer' in global scope. Too Bad®. Use this symbol instead.
   class SemVer
     FILE_NAME = '.semver'
-    TAG_FORMAT = 'v%M.%m.%p%s'
+    TAG_FORMAT = 'v%M.%m.%p%s%d'
 
     def SemVer.find dir=nil
       v = SemVer.new
@@ -32,9 +32,9 @@ module XSemVer
 
     end
 
-    attr_accessor :major, :minor, :patch, :special
+    attr_accessor :major, :minor, :patch, :special, :metadata
 
-    def initialize major=0, minor=0, patch=0, special=''
+    def initialize major=0, minor=0, patch=0, special='', metadata=''
       major.kind_of? Integer or raise "invalid major: #{major}"
       minor.kind_of? Integer or raise "invalid minor: #{minor}"
       patch.kind_of? Integer or raise "invalid patch: #{patch}"
@@ -43,7 +43,11 @@ module XSemVer
         special =~ /[A-Za-z][0-9A-Za-z\.]+/ or raise "invalid special: #{special}"
       end
 
-      @major, @minor, @patch, @special = major, minor, patch, special
+      unless metadata.empty?
+        metadata =~ /\A[A-Za-z0-9][0-9A-Za-z\.-]*\z/ or raise "invalid metadata: #{metadata}"
+      end
+
+      @major, @minor, @patch, @special, @metadata = major, minor, patch, special, metadata
     end
 
     def load file
@@ -73,11 +77,8 @@ module XSemVer
       fmt = fmt.gsub '%M', @major.to_s
       fmt = fmt.gsub '%m', @minor.to_s
       fmt = fmt.gsub '%p', @patch.to_s
-      if @special.nil? or @special.length == 0 then
-        fmt = fmt.gsub '%s', ''
-      else
-        fmt = fmt.gsub '%s', "-" + @special.to_s
-      end
+      fmt = fmt.gsub('%s', prerelease? ? "-#{@special}" : '')
+      fmt = fmt.gsub('%d', metadata? ? "+#{@metadata}" : '')
       fmt
     end
 
@@ -123,23 +124,30 @@ module XSemVer
       regex_str = Regexp.escape format
 
       # Convert all the format characters to named capture groups
-      regex_str = regex_str.gsub('%M', '(?<major>\d+)').
+      regex_str = regex_str.
+        gsub('%M', '(?<major>\d+)').
         gsub('%m', '(?<minor>\d+)').
         gsub('%p', '(?<patch>\d+)').
-        gsub('%s', '(?:-(?<special>[A-Za-z][0-9A-Za-z\.]+))?')
+        gsub('%s', '(?:-(?<special>[A-Za-z][0-9A-Za-z\.]+))?').
+        gsub('%d', '(?:\x2B(?<metadata>[0-9A-Za-z][0-9A-Za-z\.]*))?')
+
+      # Note: WTF is this crazy bug? In the last gsub above, '\x2B' is used in the regex to
+      # match the '+' character. If you try using '\+', the escaped plus sign, it dissappears
+      # from the final regex string. Whyyyyy?!
 
       regex = Regexp.new(regex_str)
       match = regex.match version_string
 
       if match
           major = minor = patch = nil
-          special = ''
+          special = metadata = ''
 
           # Extract out the version parts
           major = match[:major].to_i if match.names.include? 'major'
           minor = match[:minor].to_i if match.names.include? 'minor'
           patch = match[:patch].to_i if match.names.include? 'patch'
           special = match[:special] || '' if match.names.include? 'special'
+          metadata = match[:metadata] || '' if match.names.include? 'metadata'
 
           # Failed parse if major, minor, or patch wasn't found
           # and allow_missing is false
@@ -150,7 +158,7 @@ module XSemVer
           minor ||= 0
           patch ||= 0
 
-          SemVer.new major, minor, patch, special
+          SemVer.new major, minor, patch, special, metadata
       end
     end
     
@@ -170,6 +178,10 @@ module XSemVer
     def prerelease?
       !special.nil? && special.length > 0
     end
+    
+    def metadata?
+      !metadata.nil? && metadata.length > 0
+    end    
     
   end
 end
