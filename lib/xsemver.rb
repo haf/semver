@@ -131,10 +131,6 @@ module XSemVer
         gsub('%s', '(?:-(?<special>[A-Za-z][0-9A-Za-z\.]+))?').
         gsub('%d', '(?:\x2B(?<metadata>[0-9A-Za-z][0-9A-Za-z\.]*))?')
 
-      # Note: WTF is this crazy bug? In the last gsub above, '\x2B' is used in the regex to
-      # match the '+' character. If you try using '\+', the escaped plus sign, it dissappears
-      # from the final regex string. Whyyyyy?!
-
       regex = Regexp.new(regex_str)
       match = regex.match version_string
 
