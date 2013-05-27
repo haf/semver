@@ -244,6 +244,23 @@ describe SemVer do
         SemVer.new(1, 0, 0, 'foo', meta)
       end      
     end
+    
+    it "is serliazed to and from a file" do
+      tf = Tempfile.new 'semver.spec'
+      path = tf.path
+      tf.close!
+      v1 = SemVer.new
+      v1.metadata = "foo.123.456"
+      v1.save path
+      v2 = SemVer.new
+      v2.load path
+      v1.metadata.should == v2.metadata
+      v3 = SemVer.new
+      v3.save path
+      v4 = SemVer.new
+      v4.load path
+      v4.metadata.should == ''
+    end
   
   end
 

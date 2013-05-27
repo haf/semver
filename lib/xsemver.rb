@@ -56,7 +56,8 @@ module XSemVer
       @major = hash[:major] or raise "invalid semver file: #{file}"
       @minor = hash[:minor] or raise "invalid semver file: #{file}"
       @patch = hash[:patch] or raise "invalid semver file: #{file}"
-      @special = hash[:special]  or raise "invalid semver file: #{file}"
+      @special = hash[:special] or raise "invalid semver file: #{file}"
+      @metadata = hash[:metadata] || ""
     end
 
     def save file=nil
@@ -66,7 +67,8 @@ module XSemVer
         :major => @major,
         :minor => @minor,
         :patch => @patch,
-        :special => @special
+        :special => @special,
+        :metadata => @metadata
       }
 
       yaml = YAML.dump hash
@@ -86,29 +88,40 @@ module XSemVer
       format TAG_FORMAT
     end
 
+    # Compare version numbers according to SemVer 2.0.0-rc2
+    # TODO: extract prelease into its own class that implements Comparable?
     def <=> other
       [:major, :minor, :patch].each do |method|
         comparison = (send(method) <=> other.send(method))
         return comparison unless comparison == 0
       end
 
-      # Compare prerelease identifiers according to SemVer 2.0.0-rc2
-      # TODO: extract prelease into its own class that implements Comparable
+      # Comparision of prerelease data.
+      # The SemVer 2.0.0-rc2 spec uses this example for determining prerelease precedence:
+      #   1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
+      # Assuming equal major, minor, and patch numbers, precedence is calculated using the following rules:
+      # 
+      # The semver with prerelease data is less than the semver without prerelease data.
       return  1 if !prerelease? &&  other.prerelease?
       return -1 if  prerelease? && !other.prerelease?
+      # If neither semver has a prerelease, the semvers are equal.
       return  0 if !prerelease? && !other.prerelease?
+      # Prerelease identifiers are separated by dots.
       pre_ids = prerelease.split(".")
       other_pre_ids = other.prerelease.split(".")
       only_digits = /\A\d+\z/
       [pre_ids.size, other_pre_ids.size].max.times do |n|
         pid = pre_ids[n]
         opid = other_pre_ids[n]
+        # A prerelease with fewer ids is less than a prerelease with more ids. (1.0.0-alpha < 1.0.0-alpha.1)
         return 1 if opid.nil?
         return -1 if pid.nil?
+        # If a prerelease id consists of only numbers, it is compared numerically.
         if pid =~ only_digits && opid =~ only_digits
           pid = pid.to_i
           opid = opid.to_i
         end
+        # If a prerelease id contains one or more letters, it is compared alphabetically.
         comparison = (pid <=> opid)
         return comparison unless comparison == 0
       end
@@ -135,37 +148,39 @@ module XSemVer
       match = regex.match version_string
 
       if match
-          major = minor = patch = nil
-          special = metadata = ''
+        major = minor = patch = nil
+        special = metadata = ''
 
-          # Extract out the version parts
-          major = match[:major].to_i if match.names.include? 'major'
-          minor = match[:minor].to_i if match.names.include? 'minor'
-          patch = match[:patch].to_i if match.names.include? 'patch'
-          special = match[:special] || '' if match.names.include? 'special'
-          metadata = match[:metadata] || '' if match.names.include? 'metadata'
+        # Extract out the version parts
+        major = match[:major].to_i if match.names.include? 'major'
+        minor = match[:minor].to_i if match.names.include? 'minor'
+        patch = match[:patch].to_i if match.names.include? 'patch'
+        special = match[:special] || '' if match.names.include? 'special'
+        metadata = match[:metadata] || '' if match.names.include? 'metadata'
 
-          # Failed parse if major, minor, or patch wasn't found
-          # and allow_missing is false
-          return nil if !allow_missing and [major, minor, patch].any? {|x| x.nil? }
+        # Failed parse if major, minor, or patch wasn't found
+        # and allow_missing is false
+        return nil if !allow_missing and [major, minor, patch].any? {|x| x.nil? }
 
-          # Otherwise, allow them to default to zero
-          major ||= 0
-          minor ||= 0
-          patch ||= 0
+        # Otherwise, allow them to default to zero
+        major ||= 0
+        minor ||= 0
+        patch ||= 0
 
-          SemVer.new major, minor, patch, special, metadata
+        SemVer.new major, minor, patch, special, metadata
       end
     end
     
     # SemVer specification 2.0.0-rc2 states that anything after the '-' character is prerelease data.
     # To be consistent with the specification verbage, #prerelease returns the same value as #special.
+    # TODO: Deprecate #special in favor of #prerelease?
     def prerelease
       special
     end
     
     # SemVer specification 2.0.0-rc2 states that anything after the '-' character is prerelease data.
     # To be consistent with the specification verbage, #prerelease= sets the same value as #special.
+    # TODO: Deprecate #special= in favor of #prerelease=?
     def prerelease=(pre)
       self.special = pre
     end
@@ -175,6 +190,7 @@ module XSemVer
       !special.nil? && special.length > 0
     end
     
+    # Return true if the SemVer has a non-empty #metadata value. Otherwise, false.
     def metadata?
       !metadata.nil? && metadata.length > 0
     end    
