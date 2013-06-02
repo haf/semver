@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Semantic Versioning"
   spec.description = "maintain versions as per http://semver.org"
   spec.email = "henrik@haf.se"
-  spec.authors = ["Francesco Lazzarino", "Henrik Feldt"]
+  spec.authors = ["Francesco Lazzarino", "Henrik Feldt", "James Childress"]
   spec.homepage = 'https://github.com/haf/semver'
   spec.executables << 'semver'
   spec.files = [".semver", "semver2.gemspec", "README.md"] + Dir["lib/**/*.rb"] + Dir['bin/*']
