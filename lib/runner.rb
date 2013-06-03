@@ -3,18 +3,6 @@ module XSemVer
   # Contains the logic for performing SemVer operations from the command line.
   class Runner
     
-    VALID_COMMANDS = %w(
-      init
-      initialize
-      inc
-      increment
-      spe
-      special
-      format
-      tag
-      help
-    )
-    
     class CommandError < StandardError
     end
     
@@ -26,11 +14,8 @@ module XSemVer
       command = @args.shift || :tag
       self.send("run_#{command}")
     end
-        
-    def run_init
-      run_initialize
-    end
     
+    # Create a new .semver file if the file does not exist.
     def run_initialize
       file = SemVer::FILE_NAME
       if File.exist? file
@@ -40,11 +25,9 @@ module XSemVer
         version.save file
       end
     end
+    alias :run_init :run_initialize
     
-    def run_inc
-      run_increment
-    end
-    
+    # Increment the major, minor, or patch of the .semver file.
     def run_increment
       version = SemVer.find
       dimension = @args.shift or raise CommandError, "required: major | minor | patch"
@@ -64,24 +47,27 @@ module XSemVer
       version.special = ''
       version.save
     end
+    alias :run_inc :run_increment
     
-    def run_spe
-      run_special
-    end
-    
+    # Set the pre-release of the .semver file.
     def run_special
       version = SemVer.find
       special_str = @args.shift or raise CommandError, "required: an arbitrary string (beta, alfa, romeo, etc)"
       version.special = special_str
       version.save
     end
+    alias :run_spe :run_special
     
+    # Output the semver as specified by a format string.
+    # See: SemVer#format
     def run_format
       version = SemVer.find
       format_str = @args.shift or raise CommandError, "required: format string"
       puts version.format(format_str)
     end
     
+    # Output the semver with the default formatting.
+    # See: SemVer#to_s
     def run_tag
       version = SemVer.find
       puts version.to_s
