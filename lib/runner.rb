@@ -23,10 +23,8 @@ module XSemVer
     
     def initialize(*args)
       @args = args
-      command = @args.shift
-      if VALID_COMMANDS.include?(command)
-        self.send("run_#{command}")
-      end
+      command = @args.shift || :tag
+      self.send("run_#{command}")
     end
         
     def run_init
@@ -53,11 +51,11 @@ module XSemVer
       case dimension
       when 'major'
         version.major += 1
-        version.minor = 0
-        version.patch = 0
+        version.minor =  0
+        version.patch =  0
       when 'minor'
         version.minor += 1
-        version.patch = 0
+        version.patch =  0
       when 'patch'
         version.patch += 1
       else
@@ -76,6 +74,17 @@ module XSemVer
       special_str = @args.shift or raise CommandError, "required: an arbitrary string (beta, alfa, romeo, etc)"
       version.special = special_str
       version.save
+    end
+    
+    def run_format
+      version = SemVer.find
+      format_str = @args.shift or raise CommandError, "required: format string"
+      puts version.format(format_str)
+    end
+    
+    def run_tag
+      version = SemVer.find
+      puts version.to_s
     end
     
     

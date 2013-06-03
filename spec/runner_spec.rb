@@ -55,17 +55,13 @@ describe XSemVer::Runner do
         
         before :each do
           FileUtils.touch TEST_FILE
+          STDOUT.should_receive(:puts).with "#{TEST_FILE} already exists"
         end
       
         it "does not overwrite the existing file" do
           expect {
             described_class.new command
           }.to_not change{ File.mtime(TEST_FILE) }
-        end
-      
-        it "displays an error message" do
-          STDOUT.should_receive(:puts).with "#{TEST_FILE} already exists"
-          described_class.new command
         end
       
       end
@@ -290,7 +286,9 @@ describe XSemVer::Runner do
     describe "when a format argument is provided" do
       
       it "returns the SemVer formatted according to the format string" do
-        pending
+        SemVer.new(5,6,7,'foo','bar').save TEST_FILE
+        STDOUT.should_receive(:puts).with "5|6|7|-foo|+bar"
+        described_class.new 'format', '%M|%m|%p|%s|%d'
       end
       
     end
@@ -298,7 +296,13 @@ describe XSemVer::Runner do
     describe "without a format argument" do
       
       it "raises an exception" do
-        pending
+        SemVer.new.save TEST_FILE
+        expect {
+          described_class.new 'format'
+        }.to raise_error(
+          XSemVer::Runner::CommandError,
+          "required: format string"
+        )
       end
       
     end
@@ -315,7 +319,19 @@ describe XSemVer::Runner do
   describe "tag" do
     
     it "outputs the SemVer with default formatting" do
-      pending
+      SemVer.new(5,6,7,'foo','bar').save TEST_FILE
+      STDOUT.should_receive(:puts).with "v5.6.7-foo+bar"
+      described_class.new 'tag'
+    end
+    
+  end
+  
+  describe "with no command" do
+    
+    it "outputs the SemVer with default formatting" do
+      SemVer.new(5,6,7,'foo','bar').save TEST_FILE
+      STDOUT.should_receive(:puts).with "v5.6.7-foo+bar"
+      described_class.new
     end
     
   end
