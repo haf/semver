@@ -1,31 +1,68 @@
 require 'semver'
 require 'runner'
 
+
+
+
+# Stub SemVer::FILE_NAME for testing.
+TEST_FILE = 'semver_test_file'
+module XSemVer
+  class SemVer
+    FILE_NAME = TEST_FILE
+  end
+end
+
+
+
+
+
+
 describe XSemVer::Runner do
   
+  after :each do
+    FileUtils.rm_rf TEST_FILE
+  end
   
   
   
-  describe "init(ialize)" do
+  
+  %w( init initialize ).each do |command|
     
-    describe "when no .semver file exists" do
-      
-      it "creates a new .semver file" do
-        pending
-      end
-      
-    end
+    describe command do
     
-    describe "when a .semver file already exists" do
+      describe "when no .semver file exists" do
       
-      it "does not overwrite the existing file" do
-        pending
+        it "creates a new .semver file" do
+          expect {
+            described_class.new command
+          }.to change{ File.exist?(TEST_FILE) }.from(false).to(true)
+          v = SemVer.find
+          v.major.should eq(0)
+          v.minor.should eq(0)
+          v.patch.should eq(0)
+        end
+      
       end
+    
+      describe "when a .semver file already exists" do
+        
+        before :each do
+          FileUtils.touch TEST_FILE
+        end
       
-      it "displays an error message" do
-        pending
+        it "does not overwrite the existing file" do
+          expect {
+            described_class.new command
+          }.to_not change{ File.mtime(TEST_FILE) }
+        end
+      
+        it "displays an error message" do
+          STDOUT.should_receive(:print).with "#{TEST_FILE} already exists"
+          described_class.new command
+        end
+      
       end
-      
+    
     end
     
   end
@@ -33,87 +70,95 @@ describe XSemVer::Runner do
 
 
 
-  describe "inc(rement)" do
+  %w( inc increment ).each do |command|
     
-    describe "major" do
+    describe command do
+    
+      describe "major" do
       
-      it "increments the major version" do
-        pending
+        it "increments the major version" do
+          pending
+        end
+      
+        it "sets the minor version to 0" do
+          pending
+        end
+      
+        it "sets the patch vesion to 0" do
+          pending
+        end
+      
       end
+    
+      describe "minor" do
       
-      it "sets the minor version to 0" do
-        pending
+        it "does not change the major version" do
+          pending
+        end
+      
+        it "increments the minor version" do
+          pending
+        end
+      
+        it "sets the patch version to 0" do
+          pending
+        end
+      
       end
+    
+      describe "patch" do
       
-      it "sets the patch vesion to 0" do
-        pending
+        it "does not change the major version" do
+          pending
+        end
+      
+        it "does not change the minor version" do
+          pending
+        end
+      
+        it "increments the patch version" do
+          pending
+        end
+      
       end
+    
+      describe "without a valid subcommand" do
       
+        it "raises an exception" do
+          pending
+        end
+      
+      end
+    
     end
-    
-    describe "minor" do
-      
-      it "does not change the major version" do
-        pending
-      end
-      
-      it "increments the minor version" do
-        pending
-      end
-      
-      it "sets the patch version to 0" do
-        pending
-      end
-      
-    end
-    
-    describe "patch" do
-      
-      it "does not change the major version" do
-        pending
-      end
-      
-      it "does not change the minor version" do
-        pending
-      end
-      
-      it "increments the patch version" do
-        pending
-      end
-      
-    end
-    
-    describe "without a valid subcommand" do
-      
-      it "raises an exception" do
-        pending
-      end
-      
-    end
-    
+  
   end
   
   
   
   
-  describe "spe(cial)" do
+  %w( spe special ).each do |command|
     
-    describe "when a string argument is provided" do
+    describe command do
+    
+      describe "when a string argument is provided" do
       
-      it "sets the pre-release of the SemVer" do
-        pending
+        it "sets the pre-release of the SemVer" do
+          pending
+        end
+      
       end
-      
-    end
     
-    describe "without a string argument" do
+      describe "without a string argument" do
       
-      it "raises an exception" do
-        pending
+        it "raises an exception" do
+          pending
+        end
+      
       end
-      
-    end
     
+    end
+  
   end
   
   
