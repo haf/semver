@@ -1,12 +1,13 @@
 require 'yaml'
 require 'semver/semvermissingerror'
+require 'pre_release'
 
 module XSemVer
 # sometimes a library that you are using has already put the class
 # 'SemVer' in global scope. Too Bad®. Use this symbol instead.
   class SemVer
     FILE_NAME = '.semver'
-    TAG_FORMAT = 'v%M.%m.%p%s'
+    TAG_FORMAT = 'v%M.%m.%p%s%d'
 
     def SemVer.find dir=nil
       v = SemVer.new
@@ -32,9 +33,9 @@ module XSemVer
 
     end
 
-    attr_accessor :major, :minor, :patch, :special
+    attr_accessor :major, :minor, :patch, :special, :metadata
 
-    def initialize major=0, minor=0, patch=0, special=''
+    def initialize major=0, minor=0, patch=0, special='', metadata=''
       major.kind_of? Integer or raise "invalid major: #{major}"
       minor.kind_of? Integer or raise "invalid minor: #{minor}"
       patch.kind_of? Integer or raise "invalid patch: #{patch}"
@@ -43,7 +44,11 @@ module XSemVer
         special =~ /[A-Za-z][0-9A-Za-z\.]+/ or raise "invalid special: #{special}"
       end
 
-      @major, @minor, @patch, @special = major, minor, patch, special
+      unless metadata.empty?
+        metadata =~ /\A[A-Za-z0-9][0-9A-Za-z\.-]*\z/ or raise "invalid metadata: #{metadata}"
+      end
+
+      @major, @minor, @patch, @special, @metadata = major, minor, patch, special, metadata
     end
 
     def load file
@@ -52,7 +57,8 @@ module XSemVer
       @major = hash[:major] or raise "invalid semver file: #{file}"
       @minor = hash[:minor] or raise "invalid semver file: #{file}"
       @patch = hash[:patch] or raise "invalid semver file: #{file}"
-      @special = hash[:special]  or raise "invalid semver file: #{file}"
+      @special = hash[:special] or raise "invalid semver file: #{file}"
+      @metadata = hash[:metadata] || ""
     end
 
     def save file=nil
@@ -62,7 +68,8 @@ module XSemVer
         :major => @major,
         :minor => @minor,
         :patch => @patch,
-        :special => @special
+        :special => @special,
+        :metadata => @metadata
       }
 
       yaml = YAML.dump hash
@@ -73,11 +80,8 @@ module XSemVer
       fmt = fmt.gsub '%M', @major.to_s
       fmt = fmt.gsub '%m', @minor.to_s
       fmt = fmt.gsub '%p', @patch.to_s
-      if @special.nil? or @special.length == 0 then
-        fmt = fmt.gsub '%s', ''
-      else
-        fmt = fmt.gsub '%s', "-" + @special.to_s
-      end
+      fmt = fmt.gsub('%s', prerelease? ? "-#{@special}" : '')
+      fmt = fmt.gsub('%d', metadata? ? "+#{@metadata}" : '')
       fmt
     end
 
@@ -85,20 +89,13 @@ module XSemVer
       format TAG_FORMAT
     end
 
+    # Compare version numbers according to SemVer 2.0.0-rc2
     def <=> other
-      maj = major.to_i <=> other.major.to_i
-      return maj unless maj == 0
-
-      min = minor.to_i <=> other.minor.to_i
-      return min unless min == 0
-
-      pat = patch.to_i <=> other.patch.to_i
-      return pat unless pat == 0
-
-      spe = special <=> other.special
-      return spec unless spe == 0
-
-      0
+      [:major, :minor, :patch].each do |method|
+        comparison = (send(method) <=> other.send(method))
+        return comparison unless comparison == 0
+      end
+      PreRelease.new(prerelease) <=> PreRelease.new(other.prerelease)
     end
 
     include Comparable
@@ -109,35 +106,63 @@ module XSemVer
       regex_str = Regexp.escape format
 
       # Convert all the format characters to named capture groups
-      regex_str = regex_str.gsub('%M', '(?<major>\d+)').
+      regex_str = regex_str.
+        gsub('%M', '(?<major>\d+)').
         gsub('%m', '(?<minor>\d+)').
         gsub('%p', '(?<patch>\d+)').
-        gsub('%s', '(?:-(?<special>[A-Za-z][0-9A-Za-z\.]+))?')
+        gsub('%s', '(?:-(?<special>[A-Za-z][0-9A-Za-z\.]+))?').
+        gsub('%d', '(?:\x2B(?<metadata>[0-9A-Za-z][0-9A-Za-z\.]*))?')
 
       regex = Regexp.new(regex_str)
       match = regex.match version_string
 
       if match
-          major = minor = patch = nil
-          special = ''
+        major = minor = patch = nil
+        special = metadata = ''
 
-          # Extract out the version parts
-          major = match[:major].to_i if match.names.include? 'major'
-          minor = match[:minor].to_i if match.names.include? 'minor'
-          patch = match[:patch].to_i if match.names.include? 'patch'
-          special = match[:special] || '' if match.names.include? 'special'
+        # Extract out the version parts
+        major = match[:major].to_i if match.names.include? 'major'
+        minor = match[:minor].to_i if match.names.include? 'minor'
+        patch = match[:patch].to_i if match.names.include? 'patch'
+        special = match[:special] || '' if match.names.include? 'special'
+        metadata = match[:metadata] || '' if match.names.include? 'metadata'
 
-          # Failed parse if major, minor, or patch wasn't found
-          # and allow_missing is false
-          return nil if !allow_missing and [major, minor, patch].any? {|x| x.nil? }
+        # Failed parse if major, minor, or patch wasn't found
+        # and allow_missing is false
+        return nil if !allow_missing and [major, minor, patch].any? {|x| x.nil? }
 
-          # Otherwise, allow them to default to zero
-          major ||= 0
-          minor ||= 0
-          patch ||= 0
+        # Otherwise, allow them to default to zero
+        major ||= 0
+        minor ||= 0
+        patch ||= 0
 
-          SemVer.new major, minor, patch, special
+        SemVer.new major, minor, patch, special, metadata
       end
     end
+    
+    # SemVer specification 2.0.0-rc2 states that anything after the '-' character is prerelease data.
+    # To be consistent with the specification verbage, #prerelease returns the same value as #special.
+    # TODO: Deprecate #special in favor of #prerelease?
+    def prerelease
+      special
+    end
+    
+    # SemVer specification 2.0.0-rc2 states that anything after the '-' character is prerelease data.
+    # To be consistent with the specification verbage, #prerelease= sets the same value as #special.
+    # TODO: Deprecate #special= in favor of #prerelease=?
+    def prerelease=(pre)
+      self.special = pre
+    end
+    
+    # Return true if the SemVer has a non-empty #prerelease value. Otherwise, false.
+    def prerelease?
+      !special.nil? && special.length > 0
+    end
+    
+    # Return true if the SemVer has a non-empty #metadata value. Otherwise, false.
+    def metadata?
+      !metadata.nil? && metadata.length > 0
+    end    
+    
   end
 end

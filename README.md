@@ -56,3 +56,4 @@ creds
 -----
 [Franco Lazzarino](mailto:flazzarino@gmail.com)
 [Henrik Feldt](mailto:henrik@haf.se)
+[James Childress](mailto:james@childr.es)
