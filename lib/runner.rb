@@ -15,6 +15,26 @@ module XSemVer
       self.send("run_#{command}")
     end
     
+    # Return the text to be displayed when the 'help' command is run.
+    def self.help_text
+      <<-HELP
+semver commands
+---------------
+
+init[ialze]                        # initialize semantic version tracking
+inc[rement] major | minor | patch  # increment a specific version number
+spe[cial] [STRING]                 # set a special version suffix
+format                             # printf like format: %M, %m, %p, %s
+tag                                # equivalent to format 'v%M.%m.%p%s'
+help
+
+PLEASE READ http://semver.org
+      HELP
+    end
+    
+    
+    
+    
     # Create a new .semver file if the file does not exist.
     def run_initialize
       file = SemVer::FILE_NAME
@@ -71,6 +91,11 @@ module XSemVer
     def run_tag
       version = SemVer.find
       puts version.to_s
+    end
+    
+    # Output instructions for using the semvar command.
+    def run_help
+      puts self.class.help_text
     end
     
     
