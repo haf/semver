@@ -1,6 +1,11 @@
 require 'semver'
 require 'runner'
 
+# TODO: STDOUT.should_receive(:puts) is a shitty way to test expected output.
+# See: http://ngauthier.com/2010/12/everything-that-is-wrong-with-mocking.html
+# The solution is for XSemVer::Runner to accept an IO object to which
+# it can output and which we can test against.
+
 
 
 
@@ -11,8 +16,6 @@ module XSemVer
     FILE_NAME = TEST_FILE
   end
 end
-
-
 
 
 
@@ -57,7 +60,7 @@ describe XSemVer::Runner do
         end
       
         it "displays an error message" do
-          STDOUT.should_receive(:print).with "#{TEST_FILE} already exists"
+          STDOUT.should_receive(:puts).with "#{TEST_FILE} already exists"
           described_class.new command
         end
       
