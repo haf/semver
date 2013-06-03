@@ -29,6 +29,10 @@ describe XSemVer::Runner do
   
   
   
+  #######################
+  # SEMVER INIT(IALIZE) #
+  #######################
+  
   %w( init initialize ).each do |command|
     
     describe command do
@@ -73,6 +77,10 @@ describe XSemVer::Runner do
 
 
 
+  ######################
+  # SEMVER INC(REMENT) #
+  ######################
+  
   %w( inc increment ).each do |command|
     
     describe command do
@@ -219,15 +227,26 @@ describe XSemVer::Runner do
   
   
   
-  
+
+  ####################
+  # SEMVER SPE(CIAL) #
+  ####################
+    
   %w( spe special ).each do |command|
     
     describe command do
+      
+      before :each do
+        SemVer.new.save TEST_FILE
+      end
     
       describe "when a string argument is provided" do
       
         it "sets the pre-release of the SemVer" do
-          pending
+          prerelease = 'alpha'
+          expect {
+            described_class.new command, prerelease
+          }.to change{ SemVer.find.prerelease }.to(prerelease)
         end
       
       end
@@ -235,9 +254,23 @@ describe XSemVer::Runner do
       describe "without a string argument" do
       
         it "raises an exception" do
-          pending
+          expect {
+            described_class.new command
+          }.to raise_error(
+            XSemVer::Runner::CommandError,
+            "required: an arbitrary string (beta, alfa, romeo, etc)"
+          )
         end
-      
+        
+        it "does not modify the .semver file" do
+          expect {
+            begin
+              described_class.new command
+            rescue
+            end
+          }.to_not change{ File.mtime(TEST_FILE) }
+        end
+
       end
     
     end
@@ -247,6 +280,11 @@ describe XSemVer::Runner do
   
   
   
+
+  #################
+  # SEMVER FORMAT #
+  #################
+
   describe "format" do
     
     describe "when a format argument is provided" do
@@ -270,6 +308,10 @@ describe XSemVer::Runner do
   
   
   
+  ##############
+  # SEMVER TAG #
+  ##############
+
   describe "tag" do
     
     it "outputs the SemVer with default formatting" do

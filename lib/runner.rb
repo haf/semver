@@ -67,6 +67,17 @@ module XSemVer
       version.save
     end
     
+    def run_spe
+      run_special
+    end
+    
+    def run_special
+      version = SemVer.find
+      special_str = @args.shift or raise CommandError, "required: an arbitrary string (beta, alfa, romeo, etc)"
+      version.special = special_str
+      version.save
+    end
+    
     
     
     
