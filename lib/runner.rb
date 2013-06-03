@@ -15,6 +15,9 @@ module XSemVer
       help
     )
     
+    class CommandError < StandardError
+    end
+    
     
     
     
@@ -25,10 +28,7 @@ module XSemVer
         self.send("run_#{command}")
       end
     end
-    
-    
-    
-    
+        
     def run_init
       run_initialize
     end
@@ -41,6 +41,30 @@ module XSemVer
         version = SemVer.new
         version.save file
       end
+    end
+    
+    def run_inc
+      run_increment
+    end
+    
+    def run_increment
+      version = SemVer.find
+      dimension = @args.shift or raise CommandError, "required: major | minor | patch"
+      case dimension
+      when 'major'
+        version.major += 1
+        version.minor = 0
+        version.patch = 0
+      when 'minor'
+        version.minor += 1
+        version.patch = 0
+      when 'patch'
+        version.patch += 1
+      else
+        raise CommandError, "#{dimension} is invalid: major | minor | patch"
+      end
+      version.special = ''
+      version.save
     end
     
     

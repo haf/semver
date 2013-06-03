@@ -76,19 +76,35 @@ describe XSemVer::Runner do
   %w( inc increment ).each do |command|
     
     describe command do
+      
+      before :each do
+        SemVer.new(5,6,7,'foo').save TEST_FILE
+      end
     
       describe "major" do
       
         it "increments the major version" do
-          pending
+          expect {
+            described_class.new command, 'major'
+          }.to change{ SemVer.find.major }.by(1)
         end
       
         it "sets the minor version to 0" do
-          pending
+          expect {
+            described_class.new command, 'major'
+          }.to change{ SemVer.find.minor }.to(0)
         end
       
         it "sets the patch vesion to 0" do
-          pending
+          expect {
+            described_class.new command, 'major'
+          }.to change{ SemVer.find.patch }.to(0)
+        end
+        
+        it "sets the prerelease to an empty string" do
+          expect {
+            described_class.new command, 'major'
+          }.to change{ SemVer.find.prerelease }.to('')
         end
       
       end
@@ -96,15 +112,27 @@ describe XSemVer::Runner do
       describe "minor" do
       
         it "does not change the major version" do
-          pending
+          expect {
+            described_class.new command, 'minor'
+          }.to_not change{ SemVer.find.major }
         end
       
         it "increments the minor version" do
-          pending
+          expect {
+            described_class.new command, 'minor'
+          }.to change{ SemVer.find.minor }.by(1)
         end
       
         it "sets the patch version to 0" do
-          pending
+          expect {
+            described_class.new command, 'minor'
+          }.to change{ SemVer.find.patch }.to(0)
+        end
+      
+        it "sets the prerelease to an empty string" do
+          expect {
+            described_class.new command, 'minor'
+          }.to change{ SemVer.find.prerelease }.to('')
         end
       
       end
@@ -112,23 +140,75 @@ describe XSemVer::Runner do
       describe "patch" do
       
         it "does not change the major version" do
-          pending
+          expect {
+            described_class.new command, 'patch'
+          }.to_not change{ SemVer.find.major }
         end
       
         it "does not change the minor version" do
-          pending
+          expect {
+            described_class.new command, 'patch'
+          }.to_not change{ SemVer.find.minor }
         end
       
         it "increments the patch version" do
-          pending
+          expect {
+            described_class.new command, 'patch'
+          }.to change{ SemVer.find.patch }.by(1)
+        end
+      
+        it "sets the prerelease to an empty string" do
+          expect {
+            described_class.new command, 'patch'
+          }.to change{ SemVer.find.prerelease }.to('')
         end
       
       end
     
       describe "without a valid subcommand" do
+        
+        before :each do
+          @invalid_command = 'invalid'
+        end
       
         it "raises an exception" do
-          pending
+          expect {
+            described_class.new command, @invalid_command
+          }.to raise_error(
+            XSemVer::Runner::CommandError,
+            "#{@invalid_command} is invalid: major | minor | patch"
+          )
+        end
+        
+        it "does not modify the .semver file" do
+          expect {
+            begin
+              described_class.new command, @invalid_command
+            rescue
+            end
+          }.to_not change{ File.mtime(TEST_FILE) }
+        end
+      
+      end
+      
+      describe "without a subcommand" do
+      
+        it "raises an exception" do
+          expect {
+            described_class.new command
+          }.to raise_error(
+            XSemVer::Runner::CommandError,
+            "required: major | minor | patch"
+          )
+        end
+        
+        it "does not modify the .semver file" do
+          expect {
+            begin
+              described_class.new command
+            rescue
+            end
+          }.to_not change{ File.mtime(TEST_FILE) }
         end
       
       end
