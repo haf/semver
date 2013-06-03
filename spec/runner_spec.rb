@@ -356,4 +356,25 @@ describe XSemVer::Runner do
   
   
   
+  ####################
+  # INVALID COMMANDS #
+  ####################
+
+  describe "invalid commands" do
+    
+    it "raises an exception" do
+      invalid_command = 'foo'
+      expect {
+        described_class.new invalid_command
+      }.to raise_error(
+        XSemVer::Runner::CommandError,
+        "invalid command #{invalid_command}"
+      )
+    end
+    
+  end
+  
+  
+  
+  
 end

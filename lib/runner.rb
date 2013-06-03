@@ -14,7 +14,11 @@ module XSemVer
     def initialize(*args)
       @args = args
       command = @args.shift || :tag
-      self.send("run_#{command}")
+      begin
+        self.send("run_#{command}")
+      rescue NoMethodError
+        raise CommandError, "invalid command #{command}"
+      end
     end
     
     # Return the text to be displayed when the 'help' command is run.
