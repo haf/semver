@@ -11,6 +11,8 @@ module XSemVer
     
     
     
+    # Run a semver command. Raise a CommandError if the command does not exist.
+    # Expects an array of commands, such as ARGV.
     def initialize(*args)
       @args = args
       command = @args.shift || :tag
@@ -20,6 +22,7 @@ module XSemVer
         raise CommandError, "invalid command #{command}"
       end
     end
+    
     
     # Return the text to be displayed when the 'help' command is run.
     def self.help_text
@@ -39,8 +42,6 @@ PLEASE READ http://semver.org
     end
     
     
-    
-    
     # Create a new .semver file if the file does not exist.
     def run_initialize
       file = SemVer::FILE_NAME
@@ -52,6 +53,7 @@ PLEASE READ http://semver.org
       end
     end
     alias :run_init :run_initialize
+    
     
     # Increment the major, minor, or patch of the .semver file.
     def run_increment
@@ -75,6 +77,7 @@ PLEASE READ http://semver.org
     end
     alias :run_inc :run_increment
     
+    
     # Set the pre-release of the .semver file.
     def run_special
       version = SemVer.find
@@ -84,6 +87,7 @@ PLEASE READ http://semver.org
     end
     alias :run_spe :run_special
     
+    
     # Output the semver as specified by a format string.
     # See: SemVer#format
     def run_format
@@ -92,12 +96,14 @@ PLEASE READ http://semver.org
       puts version.format(format_str)
     end
     
+    
     # Output the semver with the default formatting.
     # See: SemVer#to_s
     def run_tag
       version = SemVer.find
       puts version.to_s
     end
+    
     
     # Output instructions for using the semvar command.
     def run_help
