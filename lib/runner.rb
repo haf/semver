@@ -1,3 +1,5 @@
+require 'semver'
+
 module XSemVer
   
   # Contains the logic for performing SemVer operations from the command line.

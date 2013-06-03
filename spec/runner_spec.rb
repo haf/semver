@@ -1,4 +1,3 @@
-require 'semver'
 require 'runner'
 
 # TODO: STDOUT.should_receive(:puts) is a shitty way to test expected output.
