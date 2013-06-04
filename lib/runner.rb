@@ -9,8 +9,6 @@ module XSemVer
     end
     
     
-    
-    
     # Run a semver command. Raise a CommandError if the command does not exist.
     # Expects an array of commands, such as ARGV.
     def initialize(*args)
@@ -34,6 +32,7 @@ init[ialze]                        # initialize semantic version tracking
 inc[rement] major | minor | patch  # increment a specific version number
 pre[release] [STRING]              # set a pre-release version suffix
 spe[cial] [STRING]                 # set a pre-release version suffix (deprecated)
+meta[data] [STRING]                # set a metadata version suffix
 format                             # printf like format: %M, %m, %p, %s
 tag                                # equivalent to format 'v%M.%m.%p%s'
 help
@@ -91,6 +90,16 @@ PLEASE READ http://semver.org
     alias :run_prerelease :run_special
     
     
+    # Set the metadata of the .semver file.
+    def run_metadata
+      version = SemVer.find
+      special_str = @args.shift or raise CommandError, "required: an arbitrary string (beta, alfa, romeo, etc)"
+      version.metadata = special_str
+      version.save
+    end
+    alias :run_meta :run_metadata
+    
+        
     # Output the semver as specified by a format string.
     # See: SemVer#format
     def run_format
@@ -112,8 +121,6 @@ PLEASE READ http://semver.org
     def run_help
       puts self.class.help_text
     end
-    
-    
     
     
   end

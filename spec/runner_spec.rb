@@ -223,9 +223,9 @@ describe XSemVer::Runner do
   
   
 
-  ####################
-  # SEMVER SPE(CIAL) #
-  ####################
+  #######################
+  # SEMVER PRE(RELEASE) #
+  #######################
     
   %w( spe special pre prerelease ).each do |command|
     
@@ -272,6 +272,57 @@ describe XSemVer::Runner do
   
   end
   
+  
+  
+  
+  #####################
+  # SEMVER META(DATA) #
+  #####################
+    
+  %w( meta metadata ).each do |command|
+    
+    describe command do
+      
+      before :each do
+        SemVer.new.save TEST_FILE
+      end
+    
+      describe "when a string argument is provided" do
+      
+        it "sets the metadata of the SemVer" do
+          metadata = 'md5:q1w2e3r4t5'
+          expect {
+            described_class.new command, metadata
+          }.to change{ SemVer.find.metadata }.to(metadata)
+        end
+      
+      end
+    
+      describe "without a string argument" do
+      
+        it "raises an exception" do
+          expect {
+            described_class.new command
+          }.to raise_error(
+            XSemVer::Runner::CommandError,
+            "required: an arbitrary string (beta, alfa, romeo, etc)"
+          )
+        end
+        
+        it "does not modify the .semver file" do
+          expect {
+            begin
+              described_class.new command
+            rescue
+            end
+          }.to_not change{ File.mtime(TEST_FILE) }
+        end
+
+      end
+    
+    end
+  
+  end
   
   
   
