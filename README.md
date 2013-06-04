@@ -1,4 +1,4 @@
-SemVer2 3.1.x gem, following semver.org 2.0.0-rc.1
+SemVer2 3.2.x gem, following semver.org 2.0.0-rc.2
 ======
 
 quickstart on the command line
@@ -19,7 +19,8 @@ use it
     Print the tag for the current .semver file.
 
     % semver inc minor          # => v0.1.0
-    % semver special 'alpha.45' # => v0.1.0-alpha.45
+    % semver pre 'alpha.45'     # => v0.1.0-alpha.45
+    % semver meta 'md5.abc123'  # => v0.1.0-alpha.45+md5.abc123
     % semver format "%M.%m"     # => 0.1
     % git tag -a `semver tag`
     % say 'that was easy'
@@ -32,9 +33,10 @@ quickstart for ruby
     v.major                     # => "0"
     v.major += 1
     v.major                     # => "1"
-    v.special = 'alpha.46'
-    v.format "%M.%m.%p%s"       # => "1.1.0-alpha.46"
-    v.to_s                      # => "v1.1.0"
+    v.prerelease = 'alpha.46'
+    v.metadata = 'md5.abc123'
+    v.format "%M.%m.%p%s%d"     # => "1.1.0-alpha.46+md5.abc123"
+    v.to_s                      # => "v1.1.0-alpha.46+md5.abc123"
     v.save
 
 
@@ -54,6 +56,6 @@ You can now do this:
 
 creds
 -----
-[Franco Lazzarino](mailto:flazzarino@gmail.com)
-[Henrik Feldt](mailto:henrik@haf.se)
-[James Childress](mailto:james@childr.es)
+* [Franco Lazzarino](mailto:flazzarino@gmail.com)
+* [Henrik Feldt](mailto:henrik@haf.se)
+* [James Childress](mailto:james@childr.es)
