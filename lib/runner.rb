@@ -73,6 +73,7 @@ PLEASE READ http://semver.org
         raise CommandError, "#{dimension} is invalid: major | minor | patch"
       end
       version.special = ''
+      version.metadata = ''
       version.save
     end
     alias :run_inc :run_increment

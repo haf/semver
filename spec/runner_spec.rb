@@ -81,7 +81,7 @@ describe XSemVer::Runner do
     describe command do
       
       before :each do
-        SemVer.new(5,6,7,'foo').save TEST_FILE
+        SemVer.new(5,6,7,'foo','bar').save TEST_FILE
       end
     
       describe "major" do
@@ -108,6 +108,12 @@ describe XSemVer::Runner do
           expect {
             described_class.new command, 'major'
           }.to change{ SemVer.find.prerelease }.to('')
+        end
+
+        it "sets the metadata to an empty string" do
+          expect {
+            described_class.new command, 'major'
+          }.to change{ SemVer.find.metadata }.to('')
         end
       
       end
@@ -137,6 +143,12 @@ describe XSemVer::Runner do
             described_class.new command, 'minor'
           }.to change{ SemVer.find.prerelease }.to('')
         end
+
+        it "sets the metadata to an empty string" do
+          expect {
+            described_class.new command, 'minor'
+          }.to change{ SemVer.find.metadata }.to('')
+        end
       
       end
     
@@ -164,6 +176,12 @@ describe XSemVer::Runner do
           expect {
             described_class.new command, 'patch'
           }.to change{ SemVer.find.prerelease }.to('')
+        end
+
+        it "sets the metadata to an empty string" do
+          expect {
+            described_class.new command, 'patch'
+          }.to change{ SemVer.find.metadata }.to('')
         end
       
       end
