@@ -32,7 +32,8 @@ semver commands
 
 init[ialze]                        # initialize semantic version tracking
 inc[rement] major | minor | patch  # increment a specific version number
-spe[cial] [STRING]                 # set a special version suffix
+pre[release] [STRING]              # set a pre-release version suffix
+spe[cial] [STRING]                 # set a pre-release version suffix (deprecated)
 format                             # printf like format: %M, %m, %p, %s
 tag                                # equivalent to format 'v%M.%m.%p%s'
 help
@@ -85,7 +86,9 @@ PLEASE READ http://semver.org
       version.special = special_str
       version.save
     end
-    alias :run_spe :run_special
+    alias :run_spe        :run_special
+    alias :run_pre        :run_special
+    alias :run_prerelease :run_special
     
     
     # Output the semver as specified by a format string.

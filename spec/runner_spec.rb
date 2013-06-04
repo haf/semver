@@ -227,7 +227,7 @@ describe XSemVer::Runner do
   # SEMVER SPE(CIAL) #
   ####################
     
-  %w( spe special ).each do |command|
+  %w( spe special pre prerelease ).each do |command|
     
     describe command do
       
