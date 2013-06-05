@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    semver2 (3.1.2)
+    semver2 (3.3.0)
 
 GEM
   remote: http://rubygems.org/
