@@ -8,21 +8,15 @@ require 'runner'
 
 
 
-# Stub SemVer::FILE_NAME for testing.
-TEST_FILE = 'semver_test_file'
-module XSemVer
-  class SemVer
-    FILE_NAME = TEST_FILE
-  end
-end
-
-
-
-
 describe XSemVer::Runner do
   
+  before :each do
+    @test_file = 'semver_test_file'
+    XSemVer::SemVer.stub(:file_name).and_return @test_file
+  end
+  
   after :each do
-    FileUtils.rm_rf TEST_FILE
+    FileUtils.rm_rf @test_file
   end
   
   
@@ -41,7 +35,7 @@ describe XSemVer::Runner do
         it "creates a new .semver file" do
           expect {
             described_class.new command
-          }.to change{ File.exist?(TEST_FILE) }.from(false).to(true)
+          }.to change{ File.exist?(@test_file) }.from(false).to(true)
           v = SemVer.find
           v.major.should eq(0)
           v.minor.should eq(0)
@@ -53,14 +47,14 @@ describe XSemVer::Runner do
       describe "when a .semver file already exists" do
         
         before :each do
-          FileUtils.touch TEST_FILE
-          STDOUT.should_receive(:puts).with "#{TEST_FILE} already exists"
+          FileUtils.touch @test_file
+          STDOUT.should_receive(:puts).with "#{@test_file} already exists"
         end
       
         it "does not overwrite the existing file" do
           expect {
             described_class.new command
-          }.to_not change{ File.mtime(TEST_FILE) }
+          }.to_not change{ File.mtime(@test_file) }
         end
       
       end
@@ -81,7 +75,7 @@ describe XSemVer::Runner do
     describe command do
       
       before :each do
-        SemVer.new(5,6,7,'foo','bar').save TEST_FILE
+        SemVer.new(5,6,7,'foo','bar').save @test_file
       end
     
       describe "major" do
@@ -207,7 +201,7 @@ describe XSemVer::Runner do
               described_class.new command, @invalid_command
             rescue
             end
-          }.to_not change{ File.mtime(TEST_FILE) }
+          }.to_not change{ File.mtime(@test_file) }
         end
       
       end
@@ -229,7 +223,7 @@ describe XSemVer::Runner do
               described_class.new command
             rescue
             end
-          }.to_not change{ File.mtime(TEST_FILE) }
+          }.to_not change{ File.mtime(@test_file) }
         end
       
       end
@@ -250,7 +244,7 @@ describe XSemVer::Runner do
     describe command do
       
       before :each do
-        SemVer.new.save TEST_FILE
+        SemVer.new.save @test_file
       end
     
       describe "when a string argument is provided" do
@@ -281,7 +275,7 @@ describe XSemVer::Runner do
               described_class.new command
             rescue
             end
-          }.to_not change{ File.mtime(TEST_FILE) }
+          }.to_not change{ File.mtime(@test_file) }
         end
 
       end
@@ -302,7 +296,7 @@ describe XSemVer::Runner do
     describe command do
       
       before :each do
-        SemVer.new.save TEST_FILE
+        SemVer.new.save @test_file
       end
     
       describe "when a string argument is provided" do
@@ -333,7 +327,7 @@ describe XSemVer::Runner do
               described_class.new command
             rescue
             end
-          }.to_not change{ File.mtime(TEST_FILE) }
+          }.to_not change{ File.mtime(@test_file) }
         end
 
       end
@@ -354,7 +348,7 @@ describe XSemVer::Runner do
     describe "when a format argument is provided" do
       
       it "returns the SemVer formatted according to the format string" do
-        SemVer.new(5,6,7,'foo','bar').save TEST_FILE
+        SemVer.new(5,6,7,'foo','bar').save @test_file
         STDOUT.should_receive(:puts).with "5|6|7|-foo|+bar"
         described_class.new 'format', '%M|%m|%p|%s|%d'
       end
@@ -364,7 +358,7 @@ describe XSemVer::Runner do
     describe "without a format argument" do
       
       it "raises an exception" do
-        SemVer.new.save TEST_FILE
+        SemVer.new.save @test_file
         expect {
           described_class.new 'format'
         }.to raise_error(
@@ -387,7 +381,7 @@ describe XSemVer::Runner do
   describe "tag" do
     
     it "outputs the SemVer with default formatting" do
-      SemVer.new(5,6,7,'foo','bar').save TEST_FILE
+      SemVer.new(5,6,7,'foo','bar').save @test_file
       STDOUT.should_receive(:puts).with "v5.6.7-foo+bar"
       described_class.new 'tag'
     end
@@ -397,7 +391,7 @@ describe XSemVer::Runner do
   describe "with no command" do
     
     it "outputs the SemVer with default formatting" do
-      SemVer.new(5,6,7,'foo','bar').save TEST_FILE
+      SemVer.new(5,6,7,'foo','bar').save @test_file
       STDOUT.should_receive(:puts).with "v5.6.7-foo+bar"
       described_class.new
     end

@@ -44,7 +44,7 @@ PLEASE READ http://semver.org
     
     # Create a new .semver file if the file does not exist.
     def run_initialize
-      file = SemVer::FILE_NAME
+      file = SemVer.file_name
       if File.exist? file
         puts "#{file} already exists"
       else

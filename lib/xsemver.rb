@@ -8,6 +8,10 @@ module XSemVer
   class SemVer
     FILE_NAME = '.semver'
     TAG_FORMAT = 'v%M.%m.%p%s%d'
+    
+    def SemVer.file_name
+      FILE_NAME
+    end
 
     def SemVer.find dir=nil
       v = SemVer.new
@@ -19,13 +23,13 @@ module XSemVer
     def SemVer.find_file dir=nil
       dir ||= Dir.pwd
       raise "#{dir} is not a directory" unless File.directory? dir
-      path = File.join dir, FILE_NAME
+      path = File.join dir, file_name
 
       Dir.chdir dir do
         while !File.exists? path do
           raise SemVerMissingError, "#{dir} is not semantic versioned", caller if File.dirname(path).match(/(\w:\/|\/)$/i)
           path = File.join File.dirname(path), ".."
-          path = File.expand_path File.join(path, FILE_NAME)
+          path = File.expand_path File.join(path, file_name)
           puts "semver: looking at #{path}"
         end
         return path
