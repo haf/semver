@@ -1,22 +1,31 @@
 require 'runner'
 
-# TODO: STDOUT.should_receive(:puts) is a shitty way to test expected output.
-# See: http://ngauthier.com/2010/12/everything-that-is-wrong-with-mocking.html
-# The solution is for XSemVer::Runner to accept an IO object to which
-# it can output and which we can test against.
-
-
-
-
 describe XSemVer::Runner do
   
+  
+  
+  
   before :each do
+    
+    # Output to a file that doesn't conflict with the project's .semver file.
     @test_file = 'semver_test_file'
     XSemVer::SemVer.stub(:file_name).and_return @test_file
+    
+    # Capture the output that would typically appear in the console.
+    @original_stdout = $stdout
+    @output = StringIO.new
+    $stdout = @output
+    
   end
   
   after :each do
+    
+    # Delete the semver_test_file if one was created.
     FileUtils.rm_rf @test_file
+    
+    # Return output to its original value.
+    $stdout = @original_stdout
+    
   end
   
   
@@ -48,7 +57,11 @@ describe XSemVer::Runner do
         
         before :each do
           FileUtils.touch @test_file
-          STDOUT.should_receive(:puts).with "#{@test_file} already exists"
+        end
+        
+        it "outputs a warning messagae" do
+          described_class.new command
+          @output.string.should eq("#{@test_file} already exists" + "\n")
         end
       
         it "does not overwrite the existing file" do
@@ -349,8 +362,8 @@ describe XSemVer::Runner do
       
       it "returns the SemVer formatted according to the format string" do
         SemVer.new(5,6,7,'foo','bar').save @test_file
-        STDOUT.should_receive(:puts).with "5|6|7|-foo|+bar"
         described_class.new 'format', '%M|%m|%p|%s|%d'
+        @output.string.should eq("5|6|7|-foo|+bar" + "\n")
       end
       
     end
@@ -382,8 +395,8 @@ describe XSemVer::Runner do
     
     it "outputs the SemVer with default formatting" do
       SemVer.new(5,6,7,'foo','bar').save @test_file
-      STDOUT.should_receive(:puts).with "v5.6.7-foo+bar"
       described_class.new 'tag'
+      @output.string.should eq("v5.6.7-foo+bar" + "\n")
     end
     
   end
@@ -392,8 +405,8 @@ describe XSemVer::Runner do
     
     it "outputs the SemVer with default formatting" do
       SemVer.new(5,6,7,'foo','bar').save @test_file
-      STDOUT.should_receive(:puts).with "v5.6.7-foo+bar"
       described_class.new
+      @output.string.should eq("v5.6.7-foo+bar" + "\n")
     end
     
   end
@@ -410,8 +423,8 @@ describe XSemVer::Runner do
     it "outputs instructions for using the semvar commands" do
       stubbed_help_text = 'stubbed help text'
       described_class.stub(:help_text).and_return(stubbed_help_text)
-      STDOUT.should_receive(:puts).with stubbed_help_text
       described_class.new 'help'
+      @output.string.should eq(stubbed_help_text + "\n")
     end
     
   end
