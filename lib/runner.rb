@@ -14,11 +14,9 @@ module XSemVer
     def initialize(*args)
       @args = args
       command = @args.shift || :tag
-      begin
-        self.send("run_#{command}")
-      rescue NoMethodError
-        raise CommandError, "invalid command #{command}"
-      end
+      method = "run_#{command}"
+      raise CommandError, "invalid command #{command}" unless self.class.method_defined?(method)
+      send method
     end
     
     
