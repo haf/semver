@@ -1,15 +1,13 @@
 require 'semver'
+require 'commandable'
 
 module XSemVer
   
   # Contains the logic for performing SemVer operations from the command line.
   class Runner
     
-    COMMAND_PREFIX = :run_
-    
-    class CommandError < StandardError
-    end
-    
+    include XSemVer::Commandable
+    extend XSemVer::Commandable::ClassMethods
     
     # Run a semver command. Raise a CommandError if the command does not exist.
     # Expects an array of commands, such as ARGV.
@@ -18,43 +16,10 @@ module XSemVer
       run_command (@args.shift || :tag)
     end
     
+    private
     
-    def self.command(*commands, &block)
-      method_name = "#{COMMAND_PREFIX}#{commands.shift}"
-      define_method method_name, &block
-      commands.each do |c|
-        class_eval "alias :#{COMMAND_PREFIX}#{c} :#{method_name}"
-      end
-    end
-    
-    
-    def run_command(command)
-      method_name = "#{COMMAND_PREFIX}#{command}"
-      if self.class.method_defined?(method_name)
-        send method_name
-      else
-        raise CommandError, "invalid command #{command}"
-      end
-    end
-    
-    
-    # Return the text to be displayed when the 'help' command is run.
-    def self.help_text
-      <<-HELP
-semver commands
----------------
-
-init[ialze]                        # initialize semantic version tracking
-inc[rement] major | minor | patch  # increment a specific version number
-pre[release] [STRING]              # set a pre-release version suffix
-spe[cial] [STRING]                 # set a pre-release version suffix (deprecated)
-meta[data] [STRING]                # set a metadata version suffix
-format                             # printf like format: %M, %m, %p, %s
-tag                                # equivalent to format 'v%M.%m.%p%s'
-help
-
-PLEASE READ http://semver.org
-      HELP
+    def param_or_error(error_message)
+      @args.shift || raise(CommandError, error_message)
     end
     
     
@@ -75,7 +40,7 @@ PLEASE READ http://semver.org
     # Increment the major, minor, or patch of the .semver file.
     command :increment, :inc do
       version = SemVer.find
-      dimension = @args.shift or raise CommandError, "required: major | minor | patch"
+      dimension = param_or_error("required: major | minor | patch")
       case dimension
       when 'major'
         version.major += 1
@@ -98,8 +63,7 @@ PLEASE READ http://semver.org
     # Set the pre-release of the .semver file.
     command :special, :spe, :prerelease, :pre do
       version = SemVer.find
-      special_str = @args.shift or raise CommandError, "required: an arbitrary string (beta, alfa, romeo, etc)"
-      version.special = special_str
+      version.special = param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
       version.save
     end
     
@@ -107,8 +71,7 @@ PLEASE READ http://semver.org
     # Set the metadata of the .semver file.
     command :metadata, :meta do
       version = SemVer.find
-      special_str = @args.shift or raise CommandError, "required: an arbitrary string (beta, alfa, romeo, etc)"
-      version.metadata = special_str
+      version.metadata = param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
       version.save
     end
     
@@ -117,8 +80,7 @@ PLEASE READ http://semver.org
     # See: SemVer#format
     command :format do
       version = SemVer.find
-      format_str = @args.shift or raise CommandError, "required: format string"
-      puts version.format(format_str)
+      puts version.format(param_or_error("required: format string"))
     end
     
     
@@ -132,12 +94,26 @@ PLEASE READ http://semver.org
     
     # Output instructions for using the semvar command.
     command :help do
-      puts self.class.help_text
+      puts <<-HELP
+semver commands
+---------------
+
+init[ialze]                        # initialize semantic version tracking
+inc[rement] major | minor | patch  # increment a specific version number
+pre[release] [STRING]              # set a pre-release version suffix
+spe[cial] [STRING]                 # set a pre-release version suffix (deprecated)
+meta[data] [STRING]                # set a metadata version suffix
+format                             # printf like format: %M, %m, %p, %s
+tag                                # equivalent to format 'v%M.%m.%p%s'
+help
+
+PLEASE READ http://semver.org
+      HELP
     end
     
 
 
-    
+
   end
   
 end
