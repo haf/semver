@@ -13,12 +13,12 @@ module XSemVer
     # Expects an array of commands, such as ARGV.
     def initialize(*args)
       @args = args
-      run_command (@args.shift || :tag)
+      run_command(@args.shift || :tag)
     end
     
     private
     
-    def param_or_error(error_message)
+    def next_param_or_error(error_message)
       @args.shift || raise(CommandError, error_message)
     end
     
@@ -58,7 +58,7 @@ PLEASE READ http://semver.org
     # Increment the major, minor, or patch of the .semver file.
     command :increment, :inc do
       version = SemVer.find
-      dimension = param_or_error("required: major | minor | patch")
+      dimension = next_param_or_error("required: major | minor | patch")
       case dimension
       when 'major'
         version.major += 1
@@ -81,7 +81,7 @@ PLEASE READ http://semver.org
     # Set the pre-release of the .semver file.
     command :special, :spe, :prerelease, :pre do
       version = SemVer.find
-      version.special = param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
+      version.special = next_param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
       version.save
     end
     
@@ -89,7 +89,7 @@ PLEASE READ http://semver.org
     # Set the metadata of the .semver file.
     command :metadata, :meta do
       version = SemVer.find
-      version.metadata = param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
+      version.metadata = next_param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
       version.save
     end
     
@@ -98,7 +98,7 @@ PLEASE READ http://semver.org
     # See: SemVer#format
     command :format do
       version = SemVer.find
-      puts version.format(param_or_error("required: format string"))
+      puts version.format(next_param_or_error("required: format string"))
     end
     
     

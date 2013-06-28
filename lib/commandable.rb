@@ -1,11 +1,11 @@
 module XSemVer
   
   module Commandable
-    
-    
 
-   
-    COMMAND_PREFIX = :run_
+
+
+
+    COMMAND_PREFIX = :_run_
     
     class CommandError < StandardError
     end    
@@ -17,17 +17,17 @@ module XSemVer
       else
         raise CommandError, "invalid command #{command}"
       end
-    end
+    end    
 
 
 
 
     module ClassMethods
       
-      def command(*commands, &block)
-        method_name = "#{COMMAND_PREFIX}#{commands.shift}"
+      def command(*command_names, &block)
+        method_name = "#{COMMAND_PREFIX}#{command_names.shift}"
         define_method method_name, &block
-        commands.each do |c|
+        command_names.each do |c|
           class_eval "alias :#{COMMAND_PREFIX}#{c} :#{method_name}"
         end
       end
@@ -36,7 +36,7 @@ module XSemVer
 
 
 
-    
+
   end
   
 end
