@@ -22,6 +22,24 @@ module XSemVer
       @args.shift || raise(CommandError, error_message)
     end
     
+    def help_text
+      <<-HELP
+semver commands
+---------------
+
+init[ialze]                        # initialize semantic version tracking
+inc[rement] major | minor | patch  # increment a specific version number
+pre[release] [STRING]              # set a pre-release version suffix
+spe[cial] [STRING]                 # set a pre-release version suffix (deprecated)
+meta[data] [STRING]                # set a metadata version suffix
+format                             # printf like format: %M, %m, %p, %s
+tag                                # equivalent to format 'v%M.%m.%p%s'
+help
+
+PLEASE READ http://semver.org
+      HELP
+    end
+    
     
     
     
@@ -94,21 +112,7 @@ module XSemVer
     
     # Output instructions for using the semvar command.
     command :help do
-      puts <<-HELP
-semver commands
----------------
-
-init[ialze]                        # initialize semantic version tracking
-inc[rement] major | minor | patch  # increment a specific version number
-pre[release] [STRING]              # set a pre-release version suffix
-spe[cial] [STRING]                 # set a pre-release version suffix (deprecated)
-meta[data] [STRING]                # set a metadata version suffix
-format                             # printf like format: %M, %m, %p, %s
-tag                                # equivalent to format 'v%M.%m.%p%s'
-help
-
-PLEASE READ http://semver.org
-      HELP
+      puts help_text
     end
     
 

@@ -422,7 +422,7 @@ describe XSemVer::Runner do
     
     it "outputs instructions for using the semvar commands" do
       stubbed_help_text = 'stubbed help text'
-      described_class.stub(:help_text).and_return(stubbed_help_text)
+      described_class.any_instance.stub(:help_text).and_return(stubbed_help_text)
       described_class.new 'help'
       @output.string.should eq(stubbed_help_text + "\n")
     end
