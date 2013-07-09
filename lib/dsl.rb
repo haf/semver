@@ -1,6 +1,6 @@
 module XSemVer
   
-  module Commandable
+  module DSL
 
 
 

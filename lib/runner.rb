@@ -1,13 +1,13 @@
 require 'semver'
-require 'commandable'
+require 'dsl'
 
 module XSemVer
   
   # Contains the logic for performing SemVer operations from the command line.
   class Runner
     
-    include XSemVer::Commandable
-    extend XSemVer::Commandable::ClassMethods
+    include XSemVer::DSL
+    extend XSemVer::DSL::ClassMethods
     
     # Run a semver command. Raise a CommandError if the command does not exist.
     # Expects an array of commands, such as ARGV.
