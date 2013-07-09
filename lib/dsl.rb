@@ -1,6 +1,10 @@
 module XSemVer
   
   module DSL
+    
+    def self.included(klass)
+      klass.extend ClassMethods
+    end
 
 
 

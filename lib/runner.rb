@@ -7,7 +7,6 @@ module XSemVer
   class Runner
     
     include XSemVer::DSL
-    extend XSemVer::DSL::ClassMethods
     
     # Run a semver command. Raise a CommandError if the command does not exist.
     # Expects an array of commands, such as ARGV.
