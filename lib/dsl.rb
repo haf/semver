@@ -40,7 +40,7 @@ module XSemVer
         method_name = "#{command_prefix}#{command_names.shift}"
         define_method method_name, &block
         command_names.each do |c|
-          class_eval "alias :#{command_prefix}#{c} :#{method_name}"
+          alias_method "#{command_prefix}#{c}", method_name
         end
       end
       
