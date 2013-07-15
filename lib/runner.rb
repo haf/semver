@@ -1,27 +1,27 @@
 require 'semver'
+require 'dsl'
 
 module XSemVer
   
   # Contains the logic for performing SemVer operations from the command line.
   class Runner
     
-    class CommandError < StandardError
-    end
-    
+    include XSemVer::DSL
     
     # Run a semver command. Raise a CommandError if the command does not exist.
     # Expects an array of commands, such as ARGV.
     def initialize(*args)
       @args = args
-      command = @args.shift || :tag
-      method = "run_#{command}"
-      raise CommandError, "invalid command #{command}" unless self.class.method_defined?(method)
-      send method
+      run_command(@args.shift || :tag)
     end
     
+    private
     
-    # Return the text to be displayed when the 'help' command is run.
-    def self.help_text
+    def next_param_or_error(error_message)
+      @args.shift || raise(CommandError, error_message)
+    end
+    
+    def help_text
       <<-HELP
 semver commands
 ---------------
@@ -40,8 +40,10 @@ PLEASE READ http://semver.org
     end
     
     
+    
+    
     # Create a new .semver file if the file does not exist.
-    def run_initialize
+    command :initialize, :init do
       file = SemVer.file_name
       if File.exist? file
         puts "#{file} already exists"
@@ -50,13 +52,12 @@ PLEASE READ http://semver.org
         version.save file
       end
     end
-    alias :run_init :run_initialize
     
     
     # Increment the major, minor, or patch of the .semver file.
-    def run_increment
+    command :increment, :inc do
       version = SemVer.find
-      dimension = @args.shift or raise CommandError, "required: major | minor | patch"
+      dimension = next_param_or_error("required: major | minor | patch")
       case dimension
       when 'major'
         version.major += 1
@@ -74,54 +75,48 @@ PLEASE READ http://semver.org
       version.metadata = ''
       version.save
     end
-    alias :run_inc :run_increment
     
     
     # Set the pre-release of the .semver file.
-    def run_special
+    command :special, :spe, :prerelease, :pre do
       version = SemVer.find
-      special_str = @args.shift or raise CommandError, "required: an arbitrary string (beta, alfa, romeo, etc)"
-      version.special = special_str
+      version.special = next_param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
       version.save
     end
-    alias :run_spe        :run_special
-    alias :run_pre        :run_special
-    alias :run_prerelease :run_special
     
     
     # Set the metadata of the .semver file.
-    def run_metadata
+    command :metadata, :meta do
       version = SemVer.find
-      special_str = @args.shift or raise CommandError, "required: an arbitrary string (beta, alfa, romeo, etc)"
-      version.metadata = special_str
+      version.metadata = next_param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
       version.save
     end
-    alias :run_meta :run_metadata
     
         
     # Output the semver as specified by a format string.
     # See: SemVer#format
-    def run_format
+    command :format do
       version = SemVer.find
-      format_str = @args.shift or raise CommandError, "required: format string"
-      puts version.format(format_str)
+      puts version.format(next_param_or_error("required: format string"))
     end
     
     
     # Output the semver with the default formatting.
     # See: SemVer#to_s
-    def run_tag
+    command :tag do
       version = SemVer.find
       puts version.to_s
     end
     
     
     # Output instructions for using the semvar command.
-    def run_help
-      puts self.class.help_text
+    command :help do
+      puts help_text
     end
     
-    
+
+
+
   end
   
 end
