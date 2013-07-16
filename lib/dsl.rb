@@ -7,6 +7,8 @@ module XSemVer
       klass.send :include, InstanceMethods
     end
 
+    # Raised when attempting to run a command that has not been defined
+    # or when a command is run with an invalid or missing parameter.
     class CommandError < StandardError
     end    
     
@@ -15,8 +17,10 @@ module XSemVer
     
     module InstanceMethods
       
-      # Calls an instance method defined via the ::command class method.
-      # Raises CommandError if the command does not exist.
+      # Runs a command that has been defined via the +command+ class method.
+      # 
+      # @param [String] command The name of the command to be run.
+      # @raise [CommandError] Raised if the command has not been defined.
       def run_command(command)
         method_name = "#{self.class.command_prefix}#{command}"
         if self.class.method_defined?(method_name)
@@ -33,9 +37,10 @@ module XSemVer
 
     module ClassMethods
       
-      # Defines an instance method based on the first command name.
-      # The method executes the code of the given block.
-      # Aliases methods for any subsequent command names.
+      # Defines a command.
+      # 
+      # @param [String, Symbol] command_names One or more names by which this command is called.
+      # @yield The code to be executed when this command is called.
       def command(*command_names, &block)
         method_name = "#{command_prefix}#{command_names.shift}"
         define_method method_name, &block
@@ -44,7 +49,7 @@ module XSemVer
         end
       end
       
-      # The prefix for any instance method defined by the ::command method.
+      # @return [Symbol] The prefix that is appended to the name of any instance method defined by the +command+ method.
       def command_prefix
         :_run_
       end
