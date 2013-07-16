@@ -2,3 +2,7 @@
 *.swp
 *.swo
 Gemfile.lock
+
+# YARD documentation
+/doc
+/.yardoc
