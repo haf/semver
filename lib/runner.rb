@@ -3,13 +3,13 @@ require 'dsl'
 
 module XSemVer
   
-  # Contains the logic for performing SemVer operations from the command line.
+  # Allows SemVer operations to be performed from the command line
   class Runner
     
     include XSemVer::DSL
     
-    # Run a semver command. Raise a CommandError if the command does not exist.
-    # Expects an array of commands, such as ARGV.
+    # Runs a command that performs an operation on a SemVer file. Runs the +tag+ command by default.
+    # @param [String, Symbol] args One or more strings which represent the command to be performed and any parameters.
     def initialize(*args)
       @args = args
       run_command(@args.shift || :tag)
@@ -17,10 +17,13 @@ module XSemVer
     
     private
     
+    # @return [String] The value of the next parameter. The parameter is delete from the array of remaining parameters.
+    # @raise [CommandError] Raised if no parameters remain.
     def next_param_or_error(error_message)
       @args.shift || raise(CommandError, error_message)
     end
     
+    # @return [String] The text to be displayed when the +help+ command is run.
     def help_text
       <<-HELP
 semver commands
@@ -42,7 +45,7 @@ PLEASE READ http://semver.org
     
     
     
-    # Create a new .semver file if the file does not exist.
+    # Create a new .semver file in the current directory if the file does not exist.
     command :initialize, :init do
       file = SemVer.file_name
       if File.exist? file
@@ -55,6 +58,7 @@ PLEASE READ http://semver.org
     
     
     # Increment the major, minor, or patch of the .semver file.
+    # Sets the minor, patch, pre-release, and metadata values accordingly.
     command :increment, :inc do
       version = SemVer.find
       dimension = next_param_or_error("required: major | minor | patch")
@@ -77,7 +81,7 @@ PLEASE READ http://semver.org
     end
     
     
-    # Set the pre-release of the .semver file.
+    # Sets the pre-release of the .semver file.
     command :special, :spe, :prerelease, :pre do
       version = SemVer.find
       version.special = next_param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
@@ -85,7 +89,7 @@ PLEASE READ http://semver.org
     end
     
     
-    # Set the metadata of the .semver file.
+    # Sets the metadata of the .semver file.
     command :metadata, :meta do
       version = SemVer.find
       version.metadata = next_param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
@@ -93,7 +97,7 @@ PLEASE READ http://semver.org
     end
     
         
-    # Output the semver as specified by a format string.
+    # Outputs the semver as specified by a format string.
     # See: SemVer#format
     command :format do
       version = SemVer.find
@@ -101,7 +105,7 @@ PLEASE READ http://semver.org
     end
     
     
-    # Output the semver with the default formatting.
+    # Outputs the semver with default formatting.
     # See: SemVer#to_s
     command :tag do
       version = SemVer.find
@@ -109,7 +113,7 @@ PLEASE READ http://semver.org
     end
     
     
-    # Output instructions for using the semvar command.
+    # Outputs instructions for using the semvar command.
     command :help do
       puts help_text
     end
