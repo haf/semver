@@ -7,6 +7,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     diff-lcs (1.1.3)
+    redcarpet (3.0.0)
     rspec (2.12.0)
       rspec-core (~> 2.12.0)
       rspec-expectations (~> 2.12.0)
@@ -22,6 +23,7 @@ PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
+  redcarpet
   rspec (~> 2.12.0)
   semver2!
   yard

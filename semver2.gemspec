@@ -16,5 +16,6 @@ Gem::Specification.new do |spec|
   
   spec.add_development_dependency 'rspec', '~>2.12.0'
   spec.add_development_dependency 'yard'
+  spec.add_development_dependency 'redcarpet'
   
 end
