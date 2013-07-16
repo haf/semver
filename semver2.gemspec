@@ -2,6 +2,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require 'semver'
 
 Gem::Specification.new do |spec|
+  
   spec.name = "semver2"
   spec.version = SemVer.find.format '%M.%m.%p'
   spec.summary = "Semantic Versioning"
@@ -12,5 +13,8 @@ Gem::Specification.new do |spec|
   spec.executables << 'semver'
   spec.files = [".semver", "semver2.gemspec", "README.md"] + Dir["lib/**/*.rb"] + Dir['bin/*']
   spec.has_rdoc = true
+  
   spec.add_development_dependency 'rspec', '~>2.12.0'
+  spec.add_development_dependency 'yard'
+  
 end
