@@ -5,7 +5,7 @@ quickstart on the command line
 ------------------------------
 install it
 
-    % gem install semver
+    % gem install semver2
 
 use it
 
