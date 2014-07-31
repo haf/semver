@@ -143,6 +143,27 @@ module XSemVer
         SemVer.new major, minor, patch, special, metadata
       end
     end
+
+    # Parses a rubygems string, such as 'v2.0.5.rc.3' or '2.0.5.rc.3' to 'v2.0.5-rc.3'
+    def self.parse_rubygems version_string
+      if /v?(?<major>\d+)
+           (\.(?<minor>\d+)
+            (\.(?<patch>\d+)
+             (\.(?<pre>[A-Za-z]+\.[0-9A-Za-z]+)
+           )?)?)?
+          /x =~ version_string
+
+        major = major.to_i
+        minor = minor.to_i if minor
+        minor ||= 0
+        patch = patch.to_i if patch
+        patch ||= 0
+        pre ||= ''
+        SemVer.new major, minor, patch, pre, ''
+      else
+        SemVer.new
+      end
+    end
     
     # SemVer specification 2.0.0-rc2 states that anything after the '-' character is prerelease data.
     # To be consistent with the specification verbage, #prerelease returns the same value as #special.

@@ -245,7 +245,7 @@ describe SemVer do
       end      
     end
     
-    it "is serliazed to and from a file" do
+    it "is serialised to and from a file" do
       tf = Tempfile.new 'semver.spec'
       path = tf.path
       tf.close!
@@ -261,7 +261,22 @@ describe SemVer do
       v4.load path
       v4.metadata.should == ''
     end
-  
+  end
+
+  describe 'rubygems format' do
+    { 'v2.3.1.rc.56' => SemVer.new(2, 3, 1, 'rc.56'),
+      'v2.3.1'       => SemVer.new(2, 3, 1),
+      'v2.3'         => SemVer.new(2, 3),
+      'v2'           => SemVer.new(2),
+      '2.3.1.rc.56'  => SemVer.new(2, 3, 1, 'rc.56'),
+      '2.3.1'        => SemVer.new(2, 3, 1),
+      '2.3'          => SemVer.new(2, 3),
+      '2'            => SemVer.new(2) }.
+      each do |input, expected|
+        it "should parse #{input}" do
+          ::SemVer.parse_rubygems(input).should eq(expected)
+        end
+      end
   end
 
 end

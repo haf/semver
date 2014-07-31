@@ -12,5 +12,6 @@ Gem::Specification.new do |spec|
   spec.executables << 'semver'
   spec.files = [".semver", "semver2.gemspec", "README.md"] + Dir["lib/**/*.rb"] + Dir['bin/*']
   spec.has_rdoc = true
-  spec.add_development_dependency 'rspec', '~>2.12.0'
+  spec.add_development_dependency 'rake', '~> 10'
+  spec.add_development_dependency 'rspec', '~> 2.12.0'
 end

@@ -1,4 +1,4 @@
-SemVer2 3.3.x gem, following semver.org 2.0.0-rc.2
+SemVer2 3.4.x gem, following semver.org 2.0.0
 ======
 
 quickstart on the command line
@@ -39,6 +39,11 @@ quickstart for ruby
     v.to_s                      # => "v1.1.0-alpha.46+md5.abc123"
     v.save
 
+parsing in ruby
+---------------
+
+    require 'semver'
+    v = SemVer.parse 'v1.2.3-rc56
 
 git integration
 ---------------
