@@ -43,7 +43,7 @@ parsing in ruby
 ---------------
 
     require 'semver'
-    v = SemVer.parse 'v1.2.3-rc.56
+    v = SemVer.parse 'v1.2.3-rc.56'
 
     v = SemVer.parse_rubygems '2.0.3.rc.2'
 
