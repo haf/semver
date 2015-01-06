@@ -8,7 +8,7 @@ module XSemVer
   class SemVer
     FILE_NAME = '.semver'
     TAG_FORMAT = 'v%M.%m.%p%s%d'
-    
+
     def SemVer.file_name
       FILE_NAME
     end
@@ -115,7 +115,7 @@ module XSemVer
         gsub('%m', '(?<minor>\d+)').
         gsub('%p', '(?<patch>\d+)').
         gsub('%s', '(?:-(?<special>[A-Za-z][0-9A-Za-z\.]+))?').
-        gsub('%d', '(?:\x2B(?<metadata>[0-9A-Za-z][0-9A-Za-z\.]*))?')
+        gsub('%d', '(?:\\\+(?<metadata>[0-9A-Za-z][0-9A-Za-z\.]*))?')
 
       regex = Regexp.new(regex_str)
       match = regex.match version_string
@@ -164,30 +164,30 @@ module XSemVer
         SemVer.new
       end
     end
-    
+
     # SemVer specification 2.0.0-rc2 states that anything after the '-' character is prerelease data.
     # To be consistent with the specification verbage, #prerelease returns the same value as #special.
     # TODO: Deprecate #special in favor of #prerelease?
     def prerelease
       special
     end
-    
+
     # SemVer specification 2.0.0-rc2 states that anything after the '-' character is prerelease data.
     # To be consistent with the specification verbage, #prerelease= sets the same value as #special.
     # TODO: Deprecate #special= in favor of #prerelease=?
     def prerelease=(pre)
       self.special = pre
     end
-    
+
     # Return true if the SemVer has a non-empty #prerelease value. Otherwise, false.
     def prerelease?
       !special.nil? && special.length > 0
     end
-    
+
     # Return true if the SemVer has a non-empty #metadata value. Otherwise, false.
     def metadata?
       !metadata.nil? && metadata.length > 0
-    end    
-    
+    end
+
   end
 end
