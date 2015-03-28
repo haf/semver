@@ -111,6 +111,7 @@ module XSemVer
 
       # Convert all the format characters to named capture groups
       regex_str = regex_str.
+        gsub(/^v/, 'v?').
         gsub('%M', '(?<major>\d+)').
         gsub('%m', '(?<minor>\d+)').
         gsub('%p', '(?<patch>\d+)').

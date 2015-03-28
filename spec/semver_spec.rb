@@ -82,6 +82,7 @@ describe SemVer do
   it "should parse formats correctly" do
     semver_strs = [
       'v1.2.3',
+      '9.8.7',
       'v1.2.3',
       '0.10.100-b32',
       'version:3-0-45',
@@ -90,6 +91,7 @@ describe SemVer do
     ]
 
     formats = [
+      nil,
       nil,
       SemVer::TAG_FORMAT,
       '%M.%m.%p%s',
@@ -100,6 +102,7 @@ describe SemVer do
 
     semvers= [
       SemVer.new(1, 2, 3),
+      SemVer.new(9, 8, 7),
       SemVer.new(1, 2, 3),
       SemVer.new(0, 10, 100, 'b32'),
       SemVer.new(3, 0, 45),
