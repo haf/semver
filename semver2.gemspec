@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = "henrik@haf.se"
   spec.authors = ["Francesco Lazzarino", "Henrik Feldt", "James Childress"]
   spec.homepage = 'https://github.com/haf/semver'
-  s.license     = 'MIT'
+  spec.license = 'MIT'
   spec.executables << 'semver'
   spec.files = [".semver", "semver2.gemspec", "README.md"] + Dir["lib/**/*.rb"] + Dir['bin/*']
   spec.has_rdoc = true
