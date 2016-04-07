@@ -1,6 +1,9 @@
 SemVer2 3.4.x gem, following semver.org 2.0.0
 ======
 
+Sponsored by
+[qvitoo – A.I. bookkeeping](https://qvitoo.com/?utm_source=github&utm_campaign=repos).
+
 quickstart on the command line
 ------------------------------
 install it
