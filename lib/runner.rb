@@ -31,6 +31,7 @@ inc[rement] major | minor | patch  # increment a specific version number
 pre[release] [STRING]              # set a pre-release version suffix
 spe[cial] [STRING]                 # set a pre-release version suffix (deprecated)
 meta[data] [STRING]                # set a metadata version suffix
+next                               # format incremented specific version without saving it
 format                             # printf like format: %M, %m, %p, %s
 tag                                # equivalent to format 'v%M.%m.%p%s'
 help
@@ -76,6 +77,26 @@ PLEASE READ http://semver.org
       version.save
     end
     
+    command :next do
+      version = SemVer.find
+      dimension = next_param_or_error("required: major | minor | patch")
+      case dimension
+      when 'major'
+        version.major += 1
+        version.minor =  0
+        version.patch =  0
+      when 'minor'
+        version.minor += 1
+        version.patch =  0
+      when 'patch'
+        version.patch += 1
+      else
+        raise CommandError, "#{dimension} is invalid: major | minor | patch"
+      end
+      version.special = ''
+      version.metadata = ''
+      puts version.to_s
+    end
     
     # Set the pre-release of the .semver file.
     command :special, :spe, :prerelease, :pre do
