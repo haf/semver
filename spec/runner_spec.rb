@@ -246,7 +246,126 @@ describe XSemVer::Runner do
   end
   
   
-  
+  ###############
+  # SEMVER NEXT #
+  ###############
+  describe 'next' do
+    let(:command) { 'next' }
+    before :each do
+      SemVer.new(5,6,7,'foo','bar').save @test_file
+
+      # does not modify the .semver file
+      expect {
+        begin
+          described_class.new command, @invalid_command
+        rescue
+        end
+      }.to_not change{ File.mtime(@test_file) }
+    end
+
+    describe "major" do
+      before :each do
+        described_class.new command, 'major'
+        @next = SemVer.parse(@output.string)
+      end
+
+      it "increments the major version" do
+        @next.major.should eq(6)
+      end
+
+      it "sets the minor version to 0" do
+        @next.minor.should eq(0)
+      end
+
+      it "sets the patch vesion to 0" do
+        @next.patch.should eq(0)
+      end
+
+      it "sets the prerelease to an empty string" do
+        @next.prerelease.should eq("")
+      end
+
+      it "sets the metadata to an empty string" do
+        @next.metadata.should eq("")
+      end
+    end
+
+    describe "minor" do
+      before :each  do
+        described_class.new command, 'minor'
+        @next = SemVer.parse(@output.string)
+      end
+
+      it "does not change the major version" do
+        @next.major.should eq(5)
+      end
+
+      it "increments the minor version" do
+        @next.minor.should eq(7)
+      end
+
+      it "sets the patch version to 0" do
+        @next.patch.should eq(0)
+      end
+
+      it "sets the prerelease to an empty string" do
+        @next.prerelease.should eq("")
+      end
+
+      it "sets the metadata to an empty string" do
+        @next.metadata.should eq("")
+      end
+    end
+
+    describe "patch" do
+      before :each  do
+        described_class.new command, 'patch'
+        @next = SemVer.parse(@output.string)
+      end
+
+      it "does not change the major version" do
+        @next.major.should eq(5)
+      end
+
+      it "does not change the minor version" do
+        @next.minor.should eq(6)
+      end
+
+      it "increments the patch version" do
+        @next.patch.should eq(8)
+      end
+
+      it "sets the prerelease to an empty string" do
+        @next.prerelease.should eq("")
+      end
+
+      it "sets the metadata to an empty string" do
+        @next.metadata.should eq("")
+      end
+    end
+
+    describe "without a valid subcommand" do
+      it "raises an exception" do
+        expect {
+          described_class.new command, 'invalid'
+        }.to raise_error(
+          XSemVer::Runner::CommandError,
+          "#{@invalid_command} is invalid: major | minor | patch"
+        )
+      end
+    end
+
+    describe "without a subcommand" do
+      it "raises an exception" do
+        expect {
+          described_class.new command
+        }.to raise_error(
+          XSemVer::Runner::CommandError,
+          "required: major | minor | patch"
+        )
+      end
+    end
+  end
 
   #######################
   # SEMVER PRE(RELEASE) #
