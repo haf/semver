@@ -57,45 +57,13 @@ PLEASE READ http://semver.org
     
     # Increment the major, minor, or patch of the .semver file.
     command :increment, :inc do
-      version = SemVer.find
       dimension = next_param_or_error("required: major | minor | patch")
-      case dimension
-      when 'major'
-        version.major += 1
-        version.minor =  0
-        version.patch =  0
-      when 'minor'
-        version.minor += 1
-        version.patch =  0
-      when 'patch'
-        version.patch += 1
-      else
-        raise CommandError, "#{dimension} is invalid: major | minor | patch"
-      end
-      version.special = ''
-      version.metadata = ''
-      version.save
+      find_and_increment(dimension).save
     end
     
     command :next do
-      version = SemVer.find
       dimension = next_param_or_error("required: major | minor | patch")
-      case dimension
-      when 'major'
-        version.major += 1
-        version.minor =  0
-        version.patch =  0
-      when 'minor'
-        version.minor += 1
-        version.patch =  0
-      when 'patch'
-        version.patch += 1
-      else
-        raise CommandError, "#{dimension} is invalid: major | minor | patch"
-      end
-      version.special = ''
-      version.metadata = ''
-      puts version.to_s
+      puts find_and_increment(dimension).to_s
     end
     
     # Set the pre-release of the .semver file.
@@ -134,10 +102,29 @@ PLEASE READ http://semver.org
     command :help do
       puts help_text
     end
-    
 
+    private
 
+    def find_and_increment(dimension)
+      version = SemVer.find
+      case dimension
+      when 'major'
+        version.major += 1
+        version.minor =  0
+        version.patch =  0
+      when 'minor'
+        version.minor += 1
+        version.patch =  0
+      when 'patch'
+        version.patch += 1
+      else
+        raise CommandError, "#{dimension} is invalid: major | minor | patch"
+      end
+      version.special = ''
+      version.metadata = ''
 
+      version
+    end
   end
   
 end
