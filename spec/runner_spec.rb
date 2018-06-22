@@ -345,13 +345,9 @@ describe XSemVer::Runner do
     end
 
     describe "without a valid subcommand" do
-      before :each do
-        @invalid_command = 'invalid'
-      end
-
       it "raises an exception" do
         expect {
-          described_class.new command, @invalid_command
+          described_class.new command, 'invalid'
         }.to raise_error(
           XSemVer::Runner::CommandError,
           "#{@invalid_command} is invalid: major | minor | patch"
