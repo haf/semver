@@ -15,4 +15,5 @@ Gem::Specification.new do |spec|
   spec.has_rdoc = true
   spec.add_development_dependency 'rake', '~> 10'
   spec.add_development_dependency 'rspec', '~> 2.12.0'
+  spec.add_development_dependency 'rubocop', '= 0.59.2'
 end

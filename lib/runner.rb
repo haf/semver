@@ -2,25 +2,23 @@ require 'semver'
 require 'dsl'
 
 module XSemVer
-  
   # Contains the logic for performing SemVer operations from the command line.
   class Runner
-    
     include XSemVer::DSL
-    
+
     # Run a semver command. Raise a CommandError if the command does not exist.
     # Expects an array of commands, such as ARGV.
     def initialize(*args)
       @args = args
       run_command(@args.shift || :tag)
     end
-    
+
     private
-    
+
     def next_param_or_error(error_message)
       @args.shift || raise(CommandError, error_message)
     end
-    
+
     def help_text
       <<-HELP
 semver commands
@@ -39,10 +37,7 @@ help
 PLEASE READ http://semver.org
       HELP
     end
-    
-    
-    
-    
+
     # Create a new .semver file if the file does not exist.
     command :initialize, :init do
       file = SemVer.file_name
@@ -53,57 +48,50 @@ PLEASE READ http://semver.org
         version.save file
       end
     end
-    
-    
+
     # Increment the major, minor, or patch of the .semver file.
     command :increment, :inc do
       dimension = next_param_or_error("required: major | minor | patch")
       find_and_increment(dimension).save
     end
-    
+
     command :next do
       dimension = next_param_or_error("required: major | minor | patch")
       puts find_and_increment(dimension).to_s
     end
-    
+
     # Set the pre-release of the .semver file.
     command :special, :spe, :prerelease, :pre do
       version = SemVer.find
       version.special = next_param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
       version.save
     end
-    
-    
+
     # Set the metadata of the .semver file.
     command :metadata, :meta do
       version = SemVer.find
       version.metadata = next_param_or_error("required: an arbitrary string (beta, alfa, romeo, etc)")
       version.save
     end
-    
-        
+
     # Output the semver as specified by a format string.
     # See: SemVer#format
     command :format do
       version = SemVer.find
       puts version.format(next_param_or_error("required: format string"))
     end
-    
-    
+
     # Output the semver with the default formatting.
     # See: SemVer#to_s
     command :tag do
       version = SemVer.find
       puts version.to_s
     end
-    
-    
+
     # Output instructions for using the semvar command.
     command :help do
       puts help_text
     end
-
-    private
 
     def find_and_increment(dimension)
       version = SemVer.find
@@ -126,5 +114,4 @@ PLEASE READ http://semver.org
       version
     end
   end
-  
 end

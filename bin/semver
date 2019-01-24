@@ -3,9 +3,9 @@
 require 'runner'
 
 begin
-  XSemVer::Runner.new *ARGV
+  XSemVer::Runner.new(*ARGV)
 rescue XSemVer::Runner::CommandError => e
   puts e.message
-  puts "#{$0} help for more info"
+  puts "#{$PROGRAM_NAME} help for more info"
   exit 1
 end
