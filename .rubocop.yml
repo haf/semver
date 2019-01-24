@@ -1,0 +1,53 @@
+AllCops:
+  Exclude:
+    - '*.gemspec'
+    - 'spec/*.rb'
+
+inherit_from: .rubocop_todo.yml
+
+Metrics/LineLength:
+  Max: 132
+
+Layout/IndentHeredoc:
+  Exclude:
+    - 'lib/runner.rb'
+
+Layout/ExtraSpacing:
+  Enabled: false
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Style/StringLiterals:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Style/AsciiComments:
+  AllowedChars:
+    - ®
+
+Style/RegexpLiteral:
+  Enabled: false
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/Documentation:
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
+    - 'lib/dsl.rb'
